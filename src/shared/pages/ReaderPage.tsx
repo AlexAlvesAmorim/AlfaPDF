@@ -1,60 +1,137 @@
 import { Layout } from '../../../shared/components/Layout'
-import  PdfViewer  from '../../../shared/components/PdfViewer'
+import PdfViewer from '../../../shared/components/PdfViewer'
 import { Toolbar } from '../../../shared/components/Toolbar'
+import { PdfTabBar } from '../../../shared/components/PdfTabBar'
 import { WelcomeScreen } from '../../../shared/components/WelcomeScreen'
-
-import { usePdfLoader } from '../../../shared/hooks/usePdfLoader'
-import { usePdfNavigation } from '../../../shared/hooks/usePdfNavigation'
-import { usePdfZoom } from '../../../shared/hooks/usePdfZoom'
+import { usePdfTabs } from '../../../shared/hooks/usePdfTabs'
+import { useRef } from 'react'
 
 export function ReaderPage() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  
   const {
-    file,
-    numPages,
-    setNumPages,
-    containerRef,
-    loadPdf
-  } = usePdfLoader()
+    tabs,
+    activeTabId,
+    activeTab,
+    addTab,
+    closeTab,
+    switchTab,
+    updateTab
+  } = usePdfTabs()
 
-  const {
-    pageNumber,
-    goToNextPage,
-    goToPrevPage,
-    setPage
-  } = usePdfNavigation(numPages)
+  const handleOpenPdf = async () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.pdf'
+    
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
 
-  const {
-    scale,
-    zoomIn,
-    zoomOut,
-    resetZoom
-  } = usePdfZoom()
+      const arrayBuffer = await file.arrayBuffer()
+      const data = new Uint8Array(arrayBuffer)
+
+      addTab({
+        name: file.name,
+        data: data,
+        currentPage: 1,
+        totalPages: 0,
+        zoom: 1.0,
+        scrollTop: 0
+      })
+    }
+    
+    input.click()
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const handleZoomIn = () => {
+    if (!activeTab) return
+    const newZoom = Math.min(activeTab.zoom * 1.2, 3.0)
+    updateTab({ zoom: newZoom })
+  }
+
+  const handleZoomOut = () => {
+    if (!activeTab) return
+    const newZoom = Math.max(activeTab.zoom / 1.2, 0.5)
+    updateTab({ zoom: newZoom })
+  }
+
+  const handleResetZoom = () => {
+    if (!activeTab) return
+    updateTab({ zoom: 1.0 })
+  }
+
+  const handleNextPage = () => {
+    if (!activeTab || !activeTab.totalPages) return
+    if (activeTab.currentPage < activeTab.totalPages) {
+      updateTab({ currentPage: activeTab.currentPage + 1 })
+    }
+  }
+
+  const handlePrevPage = () => {
+    if (!activeTab) return
+    if (activeTab.currentPage > 1) {
+      updateTab({ currentPage: activeTab.currentPage - 1 })
+    }
+  }
+
+  const handleFirstPage = () => {
+    if (!activeTab) return
+    updateTab({ currentPage: 1 })
+  }
+
+  const handleLastPage = () => {
+    if (!activeTab || !activeTab.totalPages) return
+    updateTab({ currentPage: activeTab.totalPages })
+  }
 
   return (
     <Layout>
-      {!file ? (
-        <WelcomeScreen onOpenPdf={loadPdf} />
+      {tabs.length === 0 ? (
+        <WelcomeScreen onOpenPdf={handleOpenPdf} />
       ) : (
-        <>
-          <Toolbar
-            pageNumber={pageNumber}
-            numPages={numPages}
-            onPrev={goToPrevPage}
-            onNext={goToNextPage}
-            onZoomIn={zoomIn}
-            onZoomOut={zoomOut}
-            onResetZoom={resetZoom}
+        <div className="pdf-workspace">
+          <PdfTabBar
+            tabs={tabs}
+            activeTabId={activeTabId}
+            onSwitchTab={switchTab}
+            onCloseTab={closeTab}
           />
-
-          <PdfViewer
-            file={file}
-            scale={scale}
-            containerRef={containerRef}
-            onLoadSuccess={setNumPages}
-          />
-        </>
+          
+          {activeTab && (
+            <Toolbar
+              currentPage={activeTab.currentPage}
+              totalPages={activeTab.totalPages || 0}
+              zoomPercentage={Math.round(activeTab.zoom * 100)}
+              onPrev={handlePrevPage}
+              onNext={handleNextPage}
+              onFirstPage={handleFirstPage}
+              onLastPage={handleLastPage}
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              onResetZoom={handleResetZoom}
+              onPrint={handlePrint}
+            />
+          )}
+          
+          {activeTab && (
+            <PdfViewer
+              tab={activeTab}
+              containerRef={containerRef}
+              onTabUpdate={updateTab}
+              onLoadSuccess={(numPages) => {
+                updateTab({ totalPages: numPages })
+              }}
+            />
+          )}
+        </div>
       )}
     </Layout>
   )
 }
-export default ReaderPage;
+
+export default ReaderPage

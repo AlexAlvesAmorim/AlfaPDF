@@ -4,29 +4,44 @@
   box-sizing: border-box;
 }
 
-body {
+html,
+body,
+#root {
+  height: 100%;
   margin: 0;
-  font-family: 'Crimson Pro', Georgia, serif;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
-  background: 
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(228, 0, 43, 0.015) 2px,
-      rgba(228, 0, 43, 0.015) 4px
-    ),
-    radial-gradient(circle at 15% 25%, rgba(228, 0, 43, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 75%, rgba(100, 50, 200, 0.06) 0%, transparent 40%),
-    linear-gradient(165deg, #0a0a0a 0%, #151515 50%, #0f0f0f 100%);
+background:
+  repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(228, 0, 43, 0.015) 2px,
+    rgba(228, 0, 43, 0.015) 4px
+  ),
+  radial-gradient(circle at 15% 25%, rgba(228, 0, 43, 0.08) 0%, transparent 40%),
+  radial-gradient(circle at 85% 75%, rgba(100, 50, 200, 0.06) 0%, transparent 40%),
+  radial-gradient(
+    circle at center,
+    #1a1a1a 0%,
+    #121212 40%,
+    #0a0a0a 75%,
+    #000000 100%
+  );
+
   
-  overflow: hidden;
-  color: #e8e8e8;
+  overflow: auto;
+  color: var(--text-primary);
   position: relative;
 }
 
+/* ==================== GRAIN TEXTURE ==================== */
 body::before {
   content: '';
   position: fixed;
@@ -54,15 +69,16 @@ body::before {
   90% { transform: translate(-10%, 10%); }
 }
 
+/* ==================== CODE ==================== */
 code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   background: rgba(228, 0, 43, 0.08);
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   font-size: 0.9em;
 }
 
-
+/* ==================== SCROLLBAR ==================== */
 ::-webkit-scrollbar {
   width: 14px;
   height: 14px;
@@ -80,7 +96,7 @@ code {
   );
   border-radius: 0;
   border: 3px solid #0a0a0a;
-  transition: background 0.3s ease;
+  transition: background var(--duration-normal) var(--ease-smooth);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -95,6 +111,7 @@ code {
   background: #0a0a0a;
 }
 
+/* ==================== SELECTION ==================== */
 ::selection {
   background: rgba(228, 0, 43, 0.4);
   color: #ffffff;
@@ -107,10 +124,11 @@ code {
   text-shadow: 0 0 8px rgba(228, 0, 43, 0.5);
 }
 
+/* ==================== UTILITY CLASSES ==================== */
 .sans {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-display);
 }
 
 .mono {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }

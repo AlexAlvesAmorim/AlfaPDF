@@ -3,10 +3,13 @@ interface Props {
 }
 
 export function WelcomeScreen({ onOpenPdf }: Props) {
-  return (
-    <div className="welcome">
-      <h2>PDF Reader</h2>
-      <button onClick={onOpenPdf}>Abrir PDF</button>
-    </div>
-  )
+return (
+  <div className="welcome-container">
+    <h2 className="welcome-title">PDF Reader</h2>
+
+    <button className="primary-button" onClick={onOpenPdf}>
+      Abrir PDF
+    </button>
+  </div>
+)
 }

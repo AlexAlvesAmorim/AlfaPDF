@@ -21,11 +21,11 @@ export function usePdfLoader() {
   const loadPdf = useCallback(async () => {
     setIsLoading(true)
     setError(null)
-    
+
     try {
       const filePaths = await window.electronAPI.openPDFDialog()
       const filePath = filePaths?.[0]
-      
+
       if (!filePath) {
         setIsLoading(false)
         return
@@ -60,7 +60,7 @@ export function usePdfLoader() {
 
   const printPdf = useCallback(async () => {
     if (!currentFilePath) return
-    
+
     try {
       if (window.electronAPI.printPdf) {
         await window.electronAPI.printPdf(currentFilePath)

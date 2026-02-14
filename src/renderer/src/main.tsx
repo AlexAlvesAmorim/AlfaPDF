@@ -1,5 +1,10 @@
 import './styles/theme.css'
 import './styles/global.css'
+import '../../../src/shared/components/PdfViewer.tsx'
+import '../../renderer/src/styles/components.css'
+import '../../renderer/src/styles/theme.css'
+import '../../renderer/src/styles/global.css'
+import '../../renderer/src/styles/layout.css'
 
 if (!URL.parse) {
   (URL as any).parse = (url: string) => {

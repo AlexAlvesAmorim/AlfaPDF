@@ -1,351 +1,39 @@
-.app-container {
-  width: min(1800px, 100vw);
-  height: 100vh;
-  margin: 0 auto;
+.pdf-viewer-container,
+.pdf-viewer-wrapper {
   display: flex;
   flex-direction: column;
-  background: var(--bg-base);
-  overflow: hidden;
-  position: relative;
-}
-
-/* Efeito de luz ambiente no topo */
-.app-container::before {
-  content: '';
-  position: absolute;
-  top: -20%;
-  left: 20%;
-  width: 60%;
-  height: 40%;
-  background: radial-gradient(ellipse, 
-    rgba(228, 0, 43, 0.15) 0%, 
-    rgba(228, 0, 43, 0.05) 30%,
-    transparent 70%
-  );
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-  animation: ambientPulse 8s ease-in-out infinite;
-}
-
-@keyframes ambientPulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.1); }
-}
-
-/* Header ousado */
-.app-header {
-  background: 
-    linear-gradient(135deg, 
-      var(--primary-red-darker) 0%,
-      var(--primary-red) 40%,
-      var(--primary-red-dark) 70%,
-      var(--primary-red-darker) 100%
-    );
-  color: var(--text-primary);
-  padding: var(--space-4) var(--space-7);
-  position: relative;
-  z-index: var(--z-sticky);
-  box-shadow: 
-    var(--shadow-high),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-}
-
-/* Animated gradient overlay no header */
-.app-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 200%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    transparent 100%
-  );
-  animation: shimmer 3s linear infinite;
-}
-
-@keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-/* Barra inferior do header */
-.app-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--primary-red-bright) 20%,
-    var(--accent-orange) 50%,
-    var(--secondary-purple-light) 80%,
-    transparent 100%
-  );
-  box-shadow: var(--glow-red-soft);
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1800px;
-  margin: 0 auto;
-  gap: var(--space-6);
-  position: relative;
-  z-index: 2;
-}
-
-.app-logo {
-  height: 48px;
-  filter: 
-    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
-  transition: all var(--duration-normal) var(--ease-bounce);
-}
-
-.app-logo:hover {
-  transform: scale(1.1) rotate(-2deg);
-  filter: 
-    drop-shadow(0 8px 24px rgba(0, 0, 0, 0.6))
-    drop-shadow(0 0 30px rgba(228, 0, 43, 0.4));
-}
-
-.header-title {
-  font-family: var(--font-display);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: -0.02em;
-  text-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.3),
-    0 0 20px rgba(255, 255, 255, 0.1);
-}
-
-/* Main content com perspective */
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  position: relative;
-  background: 
-    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
-    radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.03) 0%, transparent 50%),
-    var(--bg-base);
-  z-index: var(--z-content);
-}
-
-/* Toolbar moderno e assimétrico */
-.toolbar {
-  background: 
-    linear-gradient(to right,
-      var(--bg-elevated-2) 0%,
-      var(--bg-elevated-3) 100%
-    );
-  border-bottom: 2px solid var(--border-light);
-  padding: var(--space-3) var(--space-6);
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-  box-shadow: var(--shadow-medium);
-  position: relative;
-  z-index: var(--z-controls);
-}
-
-.toolbar::before {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 30%;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--primary-red) 0%,
-    transparent 100%
-  );
-  box-shadow: var(--glow-red-soft);
-}
-
-.toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 0 var(--space-4);
-  position: relative;
-}
-
-.toolbar-group:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1px;
-  height: 24px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--border-medium),
-    transparent
-  );
-}
-
-.toolbar-button {
-  font-family: var(--font-display);
-  background: var(--glass-subtle);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-smooth);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  position: relative;
-  overflow: hidden;
-}
-
-.toolbar-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
+  align-items: stretch;
+  justify-content: flex-start;
   width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(228, 0, 43, 0.1),
-    transparent
-  );
-  transition: left var(--duration-normal) var(--ease-smooth);
+  gap: var(--space-4);
 }
 
-.toolbar-button:hover {
-  background: var(--glass-medium);
-  border-color: var(--border-accent);
-  color: var(--text-primary);
-  transform: translateY(-1px);
-  box-shadow: 
-    var(--shadow-ambient),
-    var(--glow-red-soft);
+.pdf-document-container,
+.pdf-canvas-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
-.toolbar-button:hover::before {
-  left: 100%;
+canvas[data-pdf-canvas],
+.pdf-page,
+.pdf-canvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  box-shadow: var(--shadow-high);
+  border-radius: var(--radius-sm);
 }
 
-.toolbar-button:active {
-  transform: translateY(0);
-  box-shadow: none;
+.pdf-sidebar,
+.sidebar-left,
+.left-panel {
+  display: none;
 }
 
-.toolbar-button.active {
-  background: linear-gradient(
-    135deg,
-    rgba(228, 0, 43, 0.2),
-    rgba(228, 0, 43, 0.1)
-  );
-  border-color: var(--border-glow);
-  color: var(--primary-red-bright);
-  box-shadow: 
-    inset 0 1px 3px rgba(0, 0, 0, 0.3),
-    var(--glow-red-soft);
-}
-
-/* Cards com efeitos únicos */
-.glass-card {
-  background: 
-    linear-gradient(
-      135deg,
-      var(--glass-medium) 0%,
-      var(--glass-light) 100%
-    );
-  backdrop-filter: blur(var(--blur-md));
-  -webkit-backdrop-filter: blur(var(--blur-md));
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-xl);
-  box-shadow: 
-    var(--shadow-medium),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: all var(--duration-normal) var(--ease-dramatic);
-  position: relative;
-  overflow: hidden;
-}
-
-.glass-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-}
-
-.glass-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  border-color: var(--border-medium);
-  box-shadow: 
-    var(--shadow-high),
-    var(--glow-red-soft);
-}
-
-/* Animação de entrada escalonada */
-@keyframes fadeInSlide {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-in {
-  animation: fadeInSlide var(--duration-slow) var(--ease-dramatic) backwards;
-}
-
-.animate-in:nth-child(1) { animation-delay: 0ms; }
-.animate-in:nth-child(2) { animation-delay: 100ms; }
-.animate-in:nth-child(3) { animation-delay: 200ms; }
-.animate-in:nth-child(4) { animation-delay: 300ms; }
-
-/* Responsivo */
-@media (max-width: 1024px) {
-  .app-container {
-    width: 100vw;
-  }
-  
-  .app-header {
-    padding: var(--space-3) var(--space-5);
-  }
-  
-  .toolbar {
-    padding: var(--space-2) var(--space-4);
-    overflow-x: auto;
-    gap: var(--space-3);
-  }
-  
-  .toolbar::-webkit-scrollbar {
-    height: 4px;
-  }
+.app-content,
+.main-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }

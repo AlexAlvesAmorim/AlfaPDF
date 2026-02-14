@@ -1,85 +1,110 @@
+import '../../renderer/src/styles/toolbar.css'
+
 type ToolbarProps = {
-  currentPage: number;
-  totalPages: number;
-  onPrev(): void;
-  onNext(): void;
-  onZoomIn(): void;
-  onZoomOut(): void;
-  onResetZoom(): void;
-  onPrint(): void;
-};
+  currentPage: number
+  totalPages: number
+  zoomPercentage: number
+  onPrev(): void
+  onNext(): void
+  onFirstPage(): void
+  onLastPage(): void
+  onZoomIn(): void
+  onZoomOut(): void
+  onResetZoom(): void
+  onPrint(): void
+}
 
 export function Toolbar({
   currentPage,
   totalPages,
+  zoomPercentage,
   onPrev,
   onNext,
+  onFirstPage,
+  onLastPage,
   onZoomIn,
   onZoomOut,
   onResetZoom,
   onPrint,
 }: ToolbarProps) {
   return (
-    <div className="toolbar">
-      <div className="toolbar-group">
-        <button 
-          className="toolbar-button" 
-          onClick={onPrev} 
-          disabled={currentPage <= 1}
-          title="Página anterior (seta para cima)"
+    <div className="pdf-controls">
+      {/* Navegação de páginas */}
+      <div className="pdf-navigation">
+        <button
+        type="button"
+          onClick={onPrev}
+          disabled={currentPage <= 1 || totalPages === 0}
+          className="pdf-control-btn"
+          title="Página anterior (PageUp)"
         >
-          ↑ Anterior
+          ←
         </button>
-        
-        <span className="page-indicator">
-          {currentPage} / {totalPages}
+
+        <span className="pdf-page-info">
+          {totalPages > 0 ? `Página ${currentPage} de ${totalPages}` : 'Carregando...'}
         </span>
-        
-        <button 
-          className="toolbar-button" 
-          onClick={onNext} 
-          disabled={currentPage >= totalPages}
-          title="Próxima página (seta para baixo)"
+
+        <button
+        type="button"
+          onClick={onNext}
+          disabled={currentPage >= totalPages || totalPages === 0}
+          className="pdf-control-btn"
+          title="Próxima página (PageDown)"
         >
-          Próxima ↓
+          →
         </button>
       </div>
 
-      <div className="toolbar-group">
-        <button 
-          className="toolbar-button" 
+      {/* Controles de zoom */}
+      <div className="pdf-zoom-controls">
+        <button
+          type="button"
           onClick={onZoomOut}
-          title="Diminuir zoom (-)"
+          disabled={totalPages === 0}
+          className="pdf-control-btn"
+          title="Diminuir zoom (Ctrl + -)"
         >
-          🔍 -
+          −
         </button>
-        
-        <button 
-          className="toolbar-button" 
-          onClick={onResetZoom}
-          title="Resetar zoom (0)"
-        >
-          100%
-        </button>
-        
-        <button 
-          className="toolbar-button" 
+
+        <span className="pdf-zoom-info">
+          {zoomPercentage}%
+        </span>
+
+        <button
+          type="button"
           onClick={onZoomIn}
-          title="Aumentar zoom (+)"
+          disabled={totalPages === 0}
+          className="pdf-control-btn"
+          title="Aumentar zoom (Ctrl + +)"
         >
-          🔍 +
+          +
+        </button>
+
+        <button
+          type="button"
+          onClick={onResetZoom}
+          disabled={totalPages === 0}
+          className="pdf-control-btn"
+          title="Resetar zoom (Ctrl + 0)"
+        >
+          Reset
         </button>
       </div>
 
-      <div className="toolbar-group">
-        <button 
-          className="toolbar-button" 
+      {/* Botão de imprimir */}
+      <div className="pdf-print-controls">
+        <button
+        type="button"
           onClick={onPrint}
+          disabled={totalPages === 0}
+          className="pdf-control-btn"
           title="Imprimir PDF (Ctrl+P)"
         >
           🖨️ Imprimir
         </button>
       </div>
     </div>
-  );
+  )
 }

@@ -1,25 +1,27 @@
-import { useState } from 'react'
+const MIN = 0.5
+const MAX = 3.0
+const DEFAULT = 1.0
 
-const MIN = 1
-const MAX = 2.5
-
-export function usePdfZoom() {
-  const [scale, setScale] = useState(1.2)
-
+export function usePdfZoom(
+  scale: number,
+  onChange: (scale: number) => void
+) {
   function zoomIn() {
-    setScale(s => Math.min(s * 1.2, MAX))
+    onChange(Math.min(scale * 1.2, MAX))
   }
 
   function zoomOut() {
-    setScale(s => Math.max(s / 1.2, MIN))
+    onChange(Math.max(scale / 1.2, MIN))
   }
 
   function resetZoom() {
-    setScale(1.2)
+    onChange(DEFAULT)
   }
 
+  const zoomPercentage = Math.round(scale * 100)
+
   return {
-    scale,
+    zoomPercentage,
     zoomIn,
     zoomOut,
     resetZoom

@@ -1,5 +1,4 @@
 :root {
-  /* Cores Primárias - Vermelho expandido */
   --primary-red: #e4002b;
   --primary-red-dark: #b8001f;
   --primary-red-darker: #8a0017;
@@ -8,18 +7,15 @@
   --primary-red-glow: rgba(228, 0, 43, 0.35);
   --primary-red-subtle: rgba(228, 0, 43, 0.08);
   
-  /* Cores Secundárias - Roxo/Violeta para contraste */
   --secondary-purple: #6432c8;
   --secondary-purple-light: #8b5cf6;
   --secondary-purple-dark: #4c1d95;
   --secondary-purple-glow: rgba(139, 92, 246, 0.25);
   
-  /* Cores Terciárias - Laranja quente */
   --accent-orange: #ff6b35;
   --accent-orange-light: #ff8c61;
   --accent-orange-glow: rgba(255, 107, 53, 0.25);
   
-  /* Backgrounds - Camadas profundas */
   --bg-deepest: #0a0a0a;
   --bg-base: #121212;
   --bg-elevated-1: #1a1a1a;
@@ -27,41 +23,35 @@
   --bg-elevated-3: #2a2a2a;
   --bg-surface: #181818;
   
-  /* Glass effects */
   --glass-subtle: rgba(255, 255, 255, 0.02);
   --glass-light: rgba(255, 255, 255, 0.05);
   --glass-medium: rgba(255, 255, 255, 0.08);
   --glass-strong: rgba(255, 255, 255, 0.12);
   
-  /* Texto */
   --text-primary: #f5f5f5;
   --text-secondary: #b8b8b8;
   --text-tertiary: #888888;
   --text-muted: #666666;
   --text-disabled: #404040;
   
-  /* Bordas */
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-light: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.15);
   --border-accent: rgba(228, 0, 43, 0.3);
   --border-glow: rgba(228, 0, 43, 0.5);
   
-  /* Sombras dramáticas */
   --shadow-ambient: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-low: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.5);
   --shadow-high: 0 16px 48px rgba(0, 0, 0, 0.6);
   --shadow-dramatic: 0 24px 72px rgba(0, 0, 0, 0.7);
   
-  /* Glows */
   --glow-red-soft: 0 0 20px rgba(228, 0, 43, 0.2);
   --glow-red-medium: 0 0 40px rgba(228, 0, 43, 0.3);
   --glow-red-strong: 0 0 60px rgba(228, 0, 43, 0.5);
   --glow-purple: 0 0 40px rgba(139, 92, 246, 0.3);
   --glow-orange: 0 0 30px rgba(255, 107, 53, 0.3);
   
-  /* Bordas */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -69,7 +59,6 @@
   --radius-2xl: 24px;
   --radius-round: 999px;
   
-  /* Transições personalizadas */
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   --ease-dramatic: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -81,7 +70,6 @@
   --duration-slow: 500ms;
   --duration-slower: 750ms;
   
-  /* Espaçamento em escala 1.5x */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -92,9 +80,8 @@
   --space-8: 64px;
   --space-9: 96px;
   
-  /* Z-index */
-  --z-base: 1;
   --z-grain: -1;
+  --z-base: 1;
   --z-content: 10;
   --z-controls: 50;
   --z-sticky: 100;
@@ -103,7 +90,6 @@
   --z-modal: 400;
   --z-tooltip: 500;
   
-  /* Tipografia */
   --font-display: 'Space Grotesk', sans-serif;
   --font-body: 'Crimson Pro', Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -122,14 +108,12 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   
-  /* Blur */
   --blur-sm: 8px;
   --blur-md: 16px;
   --blur-lg: 24px;
   --blur-xl: 40px;
 }
 
-/* Dark theme alternativo */
 [data-theme="midnight"] {
   --bg-deepest: #000000;
   --bg-base: #0d0d0d;

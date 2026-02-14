@@ -1,36 +1,37 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 
-export function usePdfNavigation(totalPages: number) {
-  const [currentPage, setCurrentPage] = useState(1)
-
+export function usePdfNavigation(
+  totalPages: number,
+  currentPage: number,
+  onChange: (page: number) => void
+) {
   const goToPage = useCallback((pageNum: number) => {
     const targetPage = Math.max(1, Math.min(pageNum, totalPages))
-    setCurrentPage(targetPage)
-  }, [totalPages])
+    onChange(targetPage)
+  }, [totalPages, onChange])
 
   const goToNextPage = useCallback(() => {
     if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1)
+      onChange(currentPage + 1)
     }
-  }, [currentPage, totalPages])
+  }, [currentPage, totalPages, onChange])
 
   const goToPrevPage = useCallback(() => {
     if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1)
+      onChange(currentPage - 1)
     }
-  }, [currentPage])
+  }, [currentPage, onChange])
 
   const goToFirstPage = useCallback(() => {
-    setCurrentPage(1)
-  }, [])
+    onChange(1)
+  }, [onChange])
 
   const goToLastPage = useCallback(() => {
-    setCurrentPage(totalPages)
-  }, [totalPages])
+    onChange(totalPages)
+  }, [totalPages, onChange])
 
   return {
     currentPage,
-    setCurrentPage,
     goToPage,
     goToNextPage,
     goToPrevPage,
