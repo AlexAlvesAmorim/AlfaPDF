@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 
 export default function usePdfLoader() {
-  const [file, setFile] = useState<string | null>(null)
+  const [file, setFile] = useState<Uint8Array | null>(null)
 
   const openDialog = useCallback(async () => {
     try {
@@ -10,42 +10,15 @@ export default function usePdfLoader() {
         return
       }
 
-      const result = await window.electronAPI.openPDFDialog()
+      const filePath = await window.electronAPI.openPDFDialog()
 
-      let filePath: string | null = null
+      if (!filePath) return
 
-      if (Array.isArray(result)) {
-        filePath = result[0]
-      } else if (typeof result === 'string') {
-        filePath = result
-      }
+      const fileData = await window.electronAPI.readPdfFile(filePath)
 
-      if (!filePath) {
-        return
-      }
+      setFile(fileData)
 
-const loadPDF = async (filePath: string) => {
-  if (!window.electronAPI) return;
-
-  const base64 = await window.electronAPI.getFileContent(filePath);
-
-  const binary = atob(base64);
-  const len = binary.length;
-  const buffer = new Uint8Array(len);
-
-  for (let i = 0; i < len; i++) {
-    buffer[i] = binary.charCodeAt(i);
-  }
-
-  setFile(buffer);
-};
-
-
-      console.log('PDF carregado:', filePath)
-      setFile(filePath)
     } catch (err) {
-      console.error('Erro ao abrir PDF:', err)
-    }
   }, [])
 
   return {

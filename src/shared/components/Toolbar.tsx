@@ -1,9 +1,18 @@
 import '../../renderer/src/styles/toolbar.css'
+import ZoomInIcon from "@mui/icons-material/ZoomIn"
+import ZoomOutIcon from "@mui/icons-material/ZoomOut"
+import RestartAltIcon from "@mui/icons-material/RestartAlt"
+import PrintIcon from "@mui/icons-material/Print"
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
+import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import UploadFileIcon from "@mui/icons-material/UploadFile"
 
 type ToolbarProps = {
   currentPage: number
   totalPages: number
   zoomPercentage: number
+  isDocked: boolean
+  isScrolled: boolean
   onPrev(): void
   onNext(): void
   onFirstPage(): void
@@ -12,74 +21,76 @@ type ToolbarProps = {
   onZoomOut(): void
   onResetZoom(): void
   onPrint(): void
+  onOpenPdf(): void
 }
 
 export function Toolbar({
   currentPage,
   totalPages,
   zoomPercentage,
+  isDocked,
+  isScrolled,
   onPrev,
   onNext,
-  onFirstPage,
-  onLastPage,
   onZoomIn,
   onZoomOut,
   onResetZoom,
   onPrint,
+  onOpenPdf,
 }: ToolbarProps) {
   return (
-    <div className="pdf-controls">
-      {/* Navegação de páginas */}
+    <div className={`pdf-controls ${isScrolled ? "scrolled" : ""}`}>
       <div className="pdf-navigation">
         <button
-        type="button"
+          type="button"
           onClick={onPrev}
           disabled={currentPage <= 1 || totalPages === 0}
           className="pdf-control-btn"
-          title="Página anterior (PageUp)"
         >
-          ←
+          <ChevronLeftIcon sx={{ fontSize: 22 }} />
         </button>
 
-        <span className="pdf-page-info">
-          {totalPages > 0 ? `Página ${currentPage} de ${totalPages}` : 'Carregando...'}
-        </span>
+        {!isDocked && (
+          <span className="pdf-page-info">
+            {totalPages > 0
+              ? `Página ${currentPage} de ${totalPages}`
+              : 'Carregando...'}
+          </span>
+        )}
 
         <button
-        type="button"
+          type="button"
           onClick={onNext}
           disabled={currentPage >= totalPages || totalPages === 0}
           className="pdf-control-btn"
-          title="Próxima página (PageDown)"
         >
-          →
+          <ChevronRightIcon sx={{ fontSize: 22 }} />
         </button>
       </div>
 
-      {/* Controles de zoom */}
       <div className="pdf-zoom-controls">
         <button
           type="button"
           onClick={onZoomOut}
           disabled={totalPages === 0}
           className="pdf-control-btn"
-          title="Diminuir zoom (Ctrl + -)"
         >
-          −
+          <ZoomOutIcon sx={{ fontSize: 20 }} />
         </button>
 
-        <span className="pdf-zoom-info">
-          {zoomPercentage}%
-        </span>
+        {!isDocked && (
+          <span className="pdf-zoom-info">
+            {zoomPercentage}%
+          </span>
+        )}
 
         <button
           type="button"
           onClick={onZoomIn}
           disabled={totalPages === 0}
           className="pdf-control-btn"
-          title="Aumentar zoom (Ctrl + +)"
         >
-          +
+          <ZoomInIcon sx={{ fontSize: 20 }} />
         </button>
 
         <button
@@ -87,24 +98,33 @@ export function Toolbar({
           onClick={onResetZoom}
           disabled={totalPages === 0}
           className="pdf-control-btn"
-          title="Resetar zoom (Ctrl + 0)"
         >
-          Reset
+          <RestartAltIcon sx={{ fontSize: 20 }} />
         </button>
       </div>
 
-      {/* Botão de imprimir */}
       <div className="pdf-print-controls">
         <button
-        type="button"
+          type="button"
           onClick={onPrint}
           disabled={totalPages === 0}
           className="pdf-control-btn"
-          title="Imprimir PDF (Ctrl+P)"
         >
-          🖨️ Imprimir
+          <PrintIcon sx={{ fontSize: 20 }} />
         </button>
+        <div className="pdf-file-controls">
+          <button
+            className="pdf-control-btn"
+            type="button"
+            onClick={() => {
+              onOpenPdf()
+            }}
+          >
+            <UploadFileIcon sx={{ fontSize: 20 }} />
+          </button>
+        </div>
       </div>
     </div>
+
   )
 }

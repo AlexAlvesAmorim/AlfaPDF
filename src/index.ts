@@ -48,7 +48,7 @@ ipcMain.handle('open-pdf-dialog', async () => {
     properties: ['openFile'],
     filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
   });
-  return canceled ? null : filePaths;
+  return canceled ? null : filePaths[0];
 });
 
 ipcMain.handle('print-pdf', async (_event, options) => {

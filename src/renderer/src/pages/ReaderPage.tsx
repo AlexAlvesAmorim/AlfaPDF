@@ -17,7 +17,7 @@ export function ReaderPage() {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.pdf'
-    
+
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (!file) return
@@ -26,7 +26,7 @@ export function ReaderPage() {
       const uint8Array = new Uint8Array(arrayBuffer)
       openPdf(uint8Array, file.name)
     }
-    
+
     input.click()
   }
 
@@ -61,15 +61,15 @@ export function ReaderPage() {
 
   const printPdf = () => {
     if (!activeTab) return
-    
+
     const blob = new Blob([activeTab.data], { type: 'application/pdf' })
     const url = URL.createObjectURL(blob)
     const iframe = document.createElement('iframe')
-    
+
     iframe.style.display = 'none'
     iframe.src = url
     document.body.appendChild(iframe)
-    
+
     iframe.onload = () => {
       iframe.contentWindow?.print()
       setTimeout(() => {
@@ -158,9 +158,11 @@ export function ReaderPage() {
             onZoomOut={handleZoomOut}
             onResetZoom={handleResetZoom}
             onPrint={printPdf}
+            onOpenPdf={handleFileUpload}
           />
 
           <PdfViewer
+            key={activeTab.id}
             tab={activeTab}
             containerRef={containerRef}
             onTabUpdate={(updates) => updateTab(activeTab.id, updates)}

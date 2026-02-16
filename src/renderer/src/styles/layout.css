@@ -5,7 +5,7 @@
   align-items: stretch;
   justify-content: flex-start;
   width: 100%;
-  gap: var(--space-4);
+  gap: var(--space-9);
 }
 
 .pdf-document-container,

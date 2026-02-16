@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { PdfTab } from '../../../shared/types/pdf';
 
 export function usePdfTabs() {
@@ -6,10 +6,13 @@ export function usePdfTabs() {
     const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
     const openPdf = useCallback((data: Uint8Array, name: string) => {
+
+        const blob = new Blob([data], { type: 'application/pdf'});
+
         const newTab: PdfTab = {
             id: crypto.randomUUID(),
             name,
-            data,
+            data: blob,
             zoom: 1.0,
             scrollTop: 0,
             currentPage: 1,
@@ -37,11 +40,16 @@ export function usePdfTabs() {
 
     const updateTab = useCallback((id: string, updates: Partial<Omit<PdfTab, 'id' | 'data'>>) => {
         setTabs(prev => prev.map(tab =>
-             tab.id === id ? { ...tab, ...updates } : tab
+            tab.id === id ? { ...tab, ...updates } : tab
         ));
     }, []);
 
-    const activeTab = tabs.find(t => t.id === activeTabId) || null;
+
+
+    const activeTab = useMemo(
+        () => tabs.find(t => t.id === activeTabId) || null,
+        [tabs, activeTabId]
+    );
 
     return {
         tabs,
