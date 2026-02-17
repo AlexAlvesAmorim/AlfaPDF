@@ -6,7 +6,6 @@ export default function usePdfLoader() {
   const openDialog = useCallback(async () => {
     try {
       if (!window.electronAPI?.openPDFDialog) {
-        console.error('Electron API não disponível')
         return
       }
 
@@ -17,8 +16,9 @@ export default function usePdfLoader() {
       const fileData = await window.electronAPI.readPdfFile(filePath)
 
       setFile(fileData)
-
     } catch (err) {
+      // Erro silencioso — pode ser tratado no componente que chama o hook, se necessário
+    }
   }, [])
 
   return {

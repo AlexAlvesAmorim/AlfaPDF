@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, webContents } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import { is } from '@electron-toolkit/utils';
 
@@ -22,10 +22,8 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, '../renderer/dist/index.html'));
   }
 
-  
   if (is.dev) mainWindow.webContents.openDevTools({ mode: 'detach' });
 }
-
 
 ipcMain.handle('get-printers', async () => {
   if (!mainWindow) return [];
@@ -33,13 +31,12 @@ ipcMain.handle('get-printers', async () => {
   return printers.map(p => ({ name: p.name, isDefault: p.isDefault }));
 });
 
-ipcMain.handle('read-pdf-file', async (event, filePath: string) => {
+ipcMain.handle('read-pdf-file', async (_event, filePath: string) => {
   try {
     const fs = require('fs').promises;
     const buffer = await fs.readFile(filePath);
     return new Uint8Array(buffer);
   } catch (err) {
-    console.error('Erro ao ler arquivo no main:', err);
     throw err;
   }
 });
@@ -55,9 +52,6 @@ ipcMain.handle('open-pdf-dialog', async () => {
 
 ipcMain.handle('print-pdf', async (_event, options) => {
   if (!mainWindow) return;
- 
-  console.log('Imprimindo com opções:', options);
-
   return { success: true };
 });
 

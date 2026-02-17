@@ -75,7 +75,6 @@ export default function PrintDialog({
         }
       })
       .catch((err: unknown) => {
-        console.error('Erro ao listar impressoras:', err);
         if (mounted) setError('Erro ao carregar lista de impressoras.');
       })
       .finally(() => mounted && setLoading(false));

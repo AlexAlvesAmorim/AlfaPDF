@@ -43,7 +43,6 @@ function PdfViewer({
     )
   }
 
-  // Reset quando trocar de aba
   useEffect(() => {
     if (prevTabId.current !== tab.id) {
       setNumPages(0)
@@ -128,7 +127,6 @@ function PdfViewer({
     }
   }, [tab.zoom])
 
-  // 🔥 SCROLL + DOCK DETECTION
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -139,7 +137,6 @@ function PdfViewer({
         onTabUpdate({ scrollTop: container.scrollTop })
       }
 
-      // Dock quando scroll passar de 120px
       const scrolled = container.scrollTop > 120
       setIsDocked(scrolled)
       setIsScrolled(scrolled)
@@ -197,13 +194,22 @@ function PdfViewer({
         <Document
           file={tab.data}
           onLoadSuccess={handleLoadSuccess}
-          onLoadError={(error) => {
-            console.error('Erro ao carregar PDF:', error)
-          }}
+          onLoadError={() => {}}
           loading={
-            <div className="pdf-loading">
-              <p>Carregando PDF...</p>
-            </div>
+<div className="pdf-loading">
+  <div className="pdf-progress-ring">
+    <svg viewBox="0 0 100 100">
+      <circle className="pdf-progress-bg" cx="50" cy="50" r="40" />
+      <circle 
+        className="pdf-progress-circle" 
+        cx="50" cy="50" r="40" 
+        strokeDasharray="251" 
+        strokeDashoffset="0"
+      />
+    </svg>
+  </div>
+  <p className="pdf-loading-text">Carregando PDF...</p>
+</div>
           }
           error={
             <div className="pdf-error">

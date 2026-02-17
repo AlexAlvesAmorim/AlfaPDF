@@ -1,11 +1,35 @@
-/* ==================== APP HEADER ==================== */
 .app-header {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 200px;
-  padding: 0 var(--space-6);
+  min-height: 180px;
+  padding: var(--space-8) var(--space-6);
+  
+  background: linear-gradient(
+    135deg,
+    rgba(8, 2, 2, 0.82) 0%,
+    rgba(20, 13, 13, 0.82) 100%
+  );
+  
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+}
+
+.app-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(228, 0, 43, 0.15) 0%,
+    transparent 70%
+  );
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .header-content { 
@@ -13,6 +37,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .header-right {
@@ -26,29 +52,46 @@
 }
 
 .app-logo {
-  height: 160px;
+  height: clamp(140px, 18vh, 220px);
   width: auto;
   object-fit: contain;
-  opacity: 0.9;
-
+  
   filter:
-    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6))
-    drop-shadow(0 0 18px rgba(228, 0, 43, 0.25));
-
+    drop-shadow(0 8px 32px rgba(0, 0, 0, 0.9))
+    drop-shadow(0 0 40px rgba(228, 0, 43, 0.6))
+    drop-shadow(0 0 80px rgba(228, 0, 43, 0.3));
+  
+  animation: logo-pulse 4s ease-in-out infinite;
+  
   transition:
     transform var(--duration-normal) var(--ease-smooth),
-    filter var(--duration-normal) var(--ease-smooth),
-    opacity var(--duration-fast) var(--ease-smooth);
+    filter var(--duration-normal) var(--ease-smooth);
 }
 
 .app-logo:hover {
-  transform: scale(1.02);
+  transform: translateY(-8px) scale(1.05);
   filter:
-    drop-shadow(0 6px 16px rgba(0, 0, 0, 0.7))
-    drop-shadow(0 0 24px rgba(228, 0, 43, 0.35));
+    drop-shadow(0 16px 48px rgba(0, 0, 0, 1))
+    drop-shadow(0 0 60px rgba(228, 0, 43, 0.8))
+    drop-shadow(0 0 100px rgba(228, 0, 43, 0.5));
+  animation-play-state: paused;
 }
 
-/* ==================== WELCOME SCREEN ==================== */
+@keyframes logo-pulse {
+  0%, 100% {
+    filter:
+      drop-shadow(0 8px 32px rgba(0, 0, 0, 0.9))
+      drop-shadow(0 0 40px rgba(228, 0, 43, 0.6))
+      drop-shadow(0 0 80px rgba(228, 0, 43, 0.3));
+  }
+  50% {
+    filter:
+      drop-shadow(0 8px 32px rgba(0, 0, 0, 0.9))
+      drop-shadow(0 0 50px rgba(228, 0, 43, 0.8))
+      drop-shadow(0 0 100px rgba(228, 0, 43, 0.5));
+  }
+}
+
 .welcome-container {
   flex: 1;
   display: flex;
@@ -66,19 +109,18 @@
   font-weight: var(--font-weight-bold);
   letter-spacing: 3px;
   text-transform: uppercase;
-
+  
   background: linear-gradient(
     135deg,
     var(--primary-red) 0%,
     var(--accent-orange) 100%
   );
-
+  
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-
-  text-shadow: 0 0 30px rgba(228, 0, 43, 0.15);
   
+  filter: drop-shadow(0 0 30px rgba(228, 0, 43, 0.3));
   animation: titlePulse 3s ease-in-out infinite;
 }
 
@@ -87,186 +129,14 @@
   50% { opacity: 1; }
 }
 
-/* ==================== PDF TAB BAR ==================== */
-.pdf-tab-bar {
-  display: flex;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  
-  background: linear-gradient(
-    135deg,
-    rgba(30, 30, 30, 0.98) 0%,
-    rgba(40, 40, 40, 0.98) 100%
-  );
-  backdrop-filter: blur(var(--blur-lg));
-  border-bottom: 2px solid var(--border-light);
-  
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-red) rgba(255, 255, 255, 0.1);
-  
-  position: sticky;
-  top: 0;
-  z-index: var(--z-dropdown);
-}
-
-.pdf-tab-bar::-webkit-scrollbar {
-  height: 6px;
-}
-
-.pdf-tab-bar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius-sm);
-}
-
-.pdf-tab-bar::-webkit-scrollbar-thumb {
-  background: var(--primary-red);
-  border-radius: var(--radius-sm);
-  transition: background var(--duration-fast);
-}
-
-.pdf-tab-bar::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-red-light);
-}
-
-/* ==================== PDF TAB ==================== */
-.pdf-tab {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  min-width: 140px;
-  max-width: 220px;
-  
-  background: linear-gradient(
-    135deg,
-    var(--bg-elevated-2) 0%,
-    var(--bg-elevated-1) 100%
-  );
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-ambient);
-  
-  cursor: pointer;
-  white-space: nowrap;
-  user-select: none;
-  
-  transition: all var(--duration-fast) var(--ease-smooth);
-  
-  position: relative;
-  overflow: hidden;
-}
-
-.pdf-tab::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  
-  background: linear-gradient(
-    90deg,
-    var(--primary-red) 0%,
-    var(--accent-orange) 50%,
-    var(--secondary-purple-light) 100%
-  );
-  
-  opacity: 0;
-  transition: opacity var(--duration-fast);
-}
-
-.pdf-tab:hover {
-  background: linear-gradient(
-    135deg,
-    var(--bg-elevated-3) 0%,
-    var(--bg-elevated-2) 100%
-  );
-  border-color: rgba(228, 0, 43, 0.3);
-  transform: translateY(-1px);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.3),
-    0 0 20px rgba(228, 0, 43, 0.1);
-}
-
-.pdf-tab:hover::before {
-  opacity: 0.5;
-}
-
-.pdf-tab.active {
-  background: linear-gradient(
-    135deg,
-    var(--primary-red) 0%,
-    var(--accent-orange) 100%
-  );
-  color: white;
-  border-color: var(--primary-red);
-  box-shadow: 
-    0 4px 16px rgba(228, 0, 43, 0.4),
-    0 0 30px rgba(228, 0, 43, 0.2);
-}
-
-.pdf-tab.active::before {
-  opacity: 1;
-}
-
-/* ==================== TAB CONTENT ==================== */
-.tab-name {
-  flex: 1;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  font-family: var(--font-display);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tab-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  
-  background: none;
-  border: none;
-  border-radius: var(--radius-sm);
-  
-  font-size: 18px;
-  color: var(--text-secondary);
-  
-  cursor: pointer;
-  padding: 0 var(--space-2);
-  
-  transition: all var(--duration-fast) var(--ease-smooth);
-}
-
-.tab-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ff4444;
-  transform: scale(1.1);
-}
-
-.pdf-tab.active .tab-close {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.pdf-tab.active .tab-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
   .app-header {
-    height: 150px;
-    padding: 0 var(--space-4);
+    min-height: 150px;
+    padding: var(--space-6) var(--space-4);
   }
   
   .app-logo {
-    height: 120px;
+    height: clamp(100px, 14vh, 140px);
   }
   
   .header-right {
@@ -276,27 +146,5 @@
   .welcome-title {
     font-size: var(--font-size-3xl);
     letter-spacing: 2px;
-  }
-  
-  .pdf-tab-bar {
-    padding: var(--space-2) var(--space-3);
-    gap: var(--space-1);
-  }
-  
-  .pdf-tab {
-    min-width: 120px;
-    max-width: 180px;
-    padding: var(--space-2) var(--space-3);
-    gap: var(--space-2);
-  }
-  
-  .tab-name {
-    font-size: var(--font-size-xs);
-  }
-  
-  .tab-close {
-    width: 20px;
-    height: 20px;
-    font-size: 16px;
   }
 }

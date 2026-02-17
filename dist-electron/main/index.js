@@ -1,15 +1,19 @@
-import { app, BrowserWindow } from "electron";
-let mainWindow = null;
+import { app, BrowserWindow, Menu } from 'electron'
+
 function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600
-  });
-  mainWindow.loadURL("http://localhost:5173");
+  const win = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    autoHideMenuBar: true,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  Menu.setApplicationMenu(null)
+
+  win.loadURL("http://localhost:5173");
 }
-app.whenReady().then(createWindow);
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
+
+app.whenReady().then(createWindow)

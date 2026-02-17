@@ -45,7 +45,6 @@ export function usePdfLoader() {
       setCurrentFilePath(filePath)
       setIsLoading(false)
     } catch (err) {
-      console.error('Erro ao abrir PDF:', err)
       setError(err instanceof Error ? err.message : 'Erro desconhecido ao carregar PDF')
       setIsLoading(false)
     }
@@ -68,7 +67,6 @@ export function usePdfLoader() {
         window.print()
       }
     } catch (err) {
-      console.error('Erro ao imprimir PDF:', err)
       setError('Erro ao imprimir PDF')
     }
   }, [currentFilePath])

@@ -5,13 +5,11 @@ import { WelcomeScreen } from '../../../shared/components/WelcomeScreen'
 import { PdfTabBar } from '../../../shared/components/PdfTabBar'
 
 import { usePdfTabs } from '../../src/hooks/usePdfTabs'
-import { usePdfZoom } from '../../../shared/hooks/usePdfZoom'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function ReaderPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { tabs, activeTab, activeTabId, openPdf, closeTab, switchTab, updateTab } = usePdfTabs()
-  const { scale, zoomIn, zoomOut, resetZoom } = usePdfZoom()
 
   const handleFileUpload = async () => {
     const input = document.createElement('input')
@@ -30,6 +28,14 @@ export function ReaderPage() {
     input.click()
   }
 
+  const handlePdfLoaded = () => {
+    setIsLoading(false);
+
+    setTimeout(() => {
+      setShowTabs(true);
+    }, 400);
+  };
+
   const goToNextPage = () => {
     if (!activeTab) return
     const nextPage = Math.min(activeTab.currentPage + 1, activeTab.totalPages || activeTab.currentPage)
@@ -40,6 +46,16 @@ export function ReaderPage() {
     if (!activeTab) return
     const prevPage = Math.max(activeTab.currentPage - 1, 1)
     updateTab(activeTab.id, { currentPage: prevPage })
+  }
+
+  const goToFirstPage = () => {
+    if (!activeTab) return
+    updateTab(activeTab.id, { currentPage: 1 })
+  }
+
+  const goToLastPage = () => {
+    if (!activeTab || !activeTab.totalPages) return
+    updateTab(activeTab.id, { currentPage: activeTab.totalPages })
   }
 
   const handleZoomIn = () => {
@@ -152,8 +168,13 @@ export function ReaderPage() {
           <Toolbar
             currentPage={activeTab.currentPage}
             totalPages={activeTab.totalPages || 0}
+            zoomPercentage={Math.round(activeTab.zoom * 100)}
+            isDocked={false}
+            isScrolled={false}
             onPrev={goToPrevPage}
             onNext={goToNextPage}
+            onFirstPage={goToFirstPage}
+            onLastPage={goToLastPage}
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
             onResetZoom={handleResetZoom}
