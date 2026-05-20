@@ -1,30 +1,81 @@
-# React + TypeScript + Vite
+# 👨‍💻 Alex Alves Amorim
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<div align="center">
 
-Currently, two official plugins are available:
+Front-End Developer • React • TypeScript • Electron
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+</div>
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## 🚀 Sobre mim
 
-- Configure the top-level `parserOptions` property like this:
+Desenvolvedor Front-End focado em aplicações modernas utilizando React, TypeScript e Electron.
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+Experiência com suporte N3, arquitetura de interfaces, componentização, performance e desenvolvimento de aplicações desktop e web.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Atualmente desenvolvendo projetos próprios com foco em UI/UX moderna, escalabilidade e experiência profissional de produto.
+
+---
+
+## 🛠️ Tecnologias
+
+<div align="center">
+
+<img src="https://skillicons.dev/icons?i=react,ts,js,electron,vite,tailwind,nodejs,git,github,vscode" />
+
+</div>
+
+---
+
+## ⭐ Projeto Destaque
+
+### ALFA PDF Reader
+
+Desktop PDF Reader desenvolvido com Electron + React + TypeScript.
+
+### Features:
+- 📄 Renderização de PDFs
+- 🔍 Sistema de Zoom
+- 📚 Scroll contínuo vertical
+- ⚡ Hooks customizados
+- 🎨 Interface moderna dark
+- 🖥️ Desktop App com Electron
+
+---
+
+## 📊 Estatísticas
+
+<div align="center">
+
+<img height="180em" src="https://github-readme-stats.vercel.app/api?username=SEUUSUARIO&show_icons=true&theme=tokyonight&hide_border=true"/>
+
+<img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=SEUUSUARIO&layout=compact&theme=tokyonight&hide_border=true"/>
+
+</div>
+
+---
+
+## 🔥 Sequência de contribuições
+
+<div align="center">
+
+<img src="https://streak-stats.demolab.com?user=SEUUSUARIO&theme=tokyonight&hide_border=true" />
+
+</div>
+
+---
+
+## 🌐 Contato
+
+<div align="center">
+
+<a href="SEU_LINKEDIN">
+<img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"/>
+</a>
+
+<a href="SEU_GITHUB">
+<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/>
+</a>
+
+</div>
