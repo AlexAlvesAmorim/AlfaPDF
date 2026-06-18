@@ -1,0 +1,8 @@
+*.ts linguist-language=TypeScript
+*.tsx linguist-language=TypeScript
+*.js linguist-language=JavaScript
+*.cjs linguist-language=JavaScript
+*.mjs linguist-language=JavaScript
+package-lock.json linguist-language=JSON
+*.json linguist-language=JSON
+*.bmp linguist-language=Image
