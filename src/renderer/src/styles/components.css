@@ -1,0 +1,362 @@
+.app-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /*
+   * FIX: min-height agora usa --header-height definido em theme.css.
+   * Altere lá e a toolbar.css se atualiza junto via calc().
+   */
+  min-height: var(--header-height);
+  padding: var(--space-8) var(--space-6);
+
+  background: linear-gradient(
+    135deg,
+    rgba(8, 2, 2, 0.82) 0%,
+    rgba(20, 13, 13, 0.82) 100%
+  );
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.app-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(228, 0, 43, 0.15) 0%,
+    transparent 70%
+  );
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.header-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.header-right {
+  position: absolute;
+  right: var(--space-6);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.app-logo {
+  height: clamp(140px, 18vh, 220px);
+  width: auto;
+  object-fit: contain;
+
+  filter:
+    drop-shadow(0 8px 32px rgba(0, 0, 0, 0.9))
+    drop-shadow(0 0 40px rgba(228, 0, 43, 0.6))
+    drop-shadow(0 0 80px rgba(228, 0, 43, 0.3));
+
+  animation: logo-pulse 4s ease-in-out infinite;
+
+  transition:
+    transform var(--duration-normal) var(--ease-smooth),
+    filter var(--duration-normal) var(--ease-smooth);
+}
+
+.app-logo:hover {
+  transform: translateY(-8px) scale(1.05);
+  filter:
+    drop-shadow(0 16px 48px rgba(0, 0, 0, 1))
+    drop-shadow(0 0 60px rgba(228, 0, 43, 0.8))
+    drop-shadow(0 0 100px rgba(228, 0, 43, 0.5));
+  animation-play-state: paused;
+}
+
+@keyframes logo-pulse {
+  0%, 100% {
+    filter:
+      drop-shadow(0 8px 32px rgba(0, 0, 0, 0.9))
+      drop-shadow(0 0 40px rgba(228, 0, 43, 0.6))
+      drop-shadow(0 0 80px rgba(228, 0, 43, 0.3));
+  }
+  50% {
+    filter:
+      drop-shadow(0 8px 32px rgba(0, 0, 0, 0.9))
+      drop-shadow(0 0 50px rgba(228, 0, 43, 0.8))
+      drop-shadow(0 0 100px rgba(228, 0, 43, 0.5));
+  }
+}
+
+.welcome-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  text-align: center;
+  padding: var(--space-8);
+}
+
+.welcome-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+
+  background: linear-gradient(
+    135deg,
+    var(--primary-red) 0%,
+    var(--accent-orange) 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  filter: drop-shadow(0 0 30px rgba(228, 0, 43, 0.3));
+
+  /*
+   * FIX: titlePulse animava opacity de 0.9 → 1, praticamente invisível.
+   * Substituído por um pulso de glow mais perceptível.
+   */
+  animation: titlePulse 3s ease-in-out infinite;
+}
+
+.primary-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  padding: var(--space-3) var(--space-6);
+
+  color: var(--text-primary);
+
+  background: linear-gradient(
+    135deg,
+    var(--primary-red) 0%,
+    var(--primary-red-dark) 100%
+  );
+
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-md);
+
+  cursor: pointer;
+  overflow: hidden;
+
+  box-shadow:
+    var(--shadow-low),
+    var(--glow-red-soft);
+
+  transition:
+    transform var(--duration-fast) var(--ease-smooth),
+    box-shadow var(--duration-fast) var(--ease-smooth),
+    filter var(--duration-fast) var(--ease-smooth);
+}
+
+.primary-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.18),
+    transparent 60%
+  );
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.primary-button:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    var(--shadow-medium),
+    var(--glow-red-medium);
+  filter: brightness(1.08);
+}
+
+.primary-button:active {
+  transform: translateY(0);
+  box-shadow:
+    var(--shadow-ambient),
+    var(--glow-red-soft);
+}
+
+.primary-button:focus-visible {
+  outline: 2px solid var(--primary-red-light);
+  outline-offset: 3px;
+}
+
+/* FIX: titlePulse agora anima filter para um pulso de glow visível */
+@keyframes titlePulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 20px rgba(228, 0, 43, 0.2));
+  }
+  50% {
+    filter: drop-shadow(0 0 40px rgba(228, 0, 43, 0.55));
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    min-height: 150px;
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .app-logo {
+    height: clamp(100px, 14vh, 140px);
+  }
+
+  .header-right {
+    right: var(--space-4);
+  }
+
+  .welcome-title {
+    font-size: var(--font-size-3xl);
+    letter-spacing: 2px;
+  }
+}
+
+/* ==================== TOAST NOTIFICATIONS ==================== */
+.toast-container {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  z-index: var(--z-modal);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  pointer-events: none;
+}
+
+.toast-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  padding: var(--space-3) var(--space-5);
+  min-width: 280px;
+  max-width: 420px;
+
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  cursor: pointer;
+  pointer-events: all;
+  user-select: none;
+
+  animation: toast-in var(--duration-normal) var(--ease-bounce);
+
+  transition:
+    opacity var(--duration-fast) var(--ease-smooth),
+    transform var(--duration-fast) var(--ease-smooth);
+}
+
+.toast-item:hover {
+  opacity: 0.88;
+  transform: translateX(-4px);
+}
+
+/* Variante success */
+.toast-success {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 180, 80, 0.18) 0%,
+    rgba(0, 140, 60, 0.22) 100%
+  );
+  border-color: rgba(0, 200, 80, 0.35);
+  color: #a0ffb0;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(0, 200, 80, 0.15);
+}
+
+.toast-success .toast-icon {
+  color: #00e664;
+}
+
+/* Variante error */
+.toast-error {
+  background: linear-gradient(
+    135deg,
+    rgba(228, 0, 43, 0.18) 0%,
+    rgba(180, 0, 35, 0.22) 100%
+  );
+  border-color: rgba(228, 0, 43, 0.45);
+  color: #ffb0b8;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(228, 0, 43, 0.2);
+}
+
+.toast-error .toast-icon {
+  color: var(--primary-red-light);
+}
+
+/* Variante info */
+.toast-info {
+  background: linear-gradient(
+    135deg,
+    rgba(100, 120, 255, 0.18) 0%,
+    rgba(80, 100, 220, 0.22) 100%
+  );
+  border-color: rgba(120, 140, 255, 0.35);
+  color: #c0c8ff;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(100, 120, 255, 0.15);
+}
+
+.toast-info .toast-icon {
+  color: #909fff;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.toast-message {
+  flex: 1;
+  line-height: 1.4;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(48px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+

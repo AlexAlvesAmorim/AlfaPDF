@@ -1,0 +1,33 @@
+{
+  "appId": "com.alfa.pdfreader",
+  "asar": true,
+  "productName": "AlfaPDF",
+
+  "directories": {
+    "output": "release/${version}"
+  },
+
+  "files": [
+    "out/**/*"
+  ],
+
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icon.ico",
+    "artifactName": "${productName}-Windows-${version}-Setup.${ext}"
+  },
+
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "deleteAppDataOnUninstall": false,
+    "installerIcon": "build/icon.ico",
+    "uninstallerIcon": "build/icon.ico"
+  }
+}

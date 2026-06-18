@@ -1,0 +1,42 @@
+.pdf-viewer-container,
+.pdf-viewer-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+  /*
+   * FIX: gap era --space-9 (96px) — muito grande entre páginas.
+   * Reduzido para --space-6 (32px). Ajuste conforme preferência visual.
+   */
+  gap: var(--space-6);
+}
+
+.pdf-document-container,
+.pdf-canvas-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+canvas[data-pdf-canvas],
+.pdf-page,
+.pdf-canvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  box-shadow: var(--shadow-high);
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * FIX: .pdf-sidebar, .sidebar-left, .left-panel removidos.
+ * Essas classes nunca existiram no HTML — eram dead code.
+ */
+
+.app-content,
+.main-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
