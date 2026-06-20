@@ -10,11 +10,11 @@ Front-End Developer • React • TypeScript • Electron
 
 ## 🚀 Sobre mim
 
-Desenvolvedor Front-End focado em aplicações modernas utilizando React, TypeScript e Electron.
+Desenvolvedor Front-End focado em aplicações desktop modernas com Electron, React e TypeScript.
 
-Experiência com suporte N3, arquitetura de interfaces, componentização, performance e desenvolvimento de aplicações desktop e web.
+Atuação prática com construção de interfaces profissionais, arquitetura de componentes, performance e UX aplicada a produtos reais.
 
-Atualmente desenvolvendo projetos próprios com foco em UI/UX moderna, escalabilidade e experiência profissional de produto.
+Atualmente desenvolvendo softwares próprios com foco em experiência de produto, design system consistente e funcionalidades de nível comercial.
 
 ---
 
@@ -30,17 +30,67 @@ Atualmente desenvolvendo projetos próprios com foco em UI/UX moderna, escalabil
 
 ## ⭐ Projeto Destaque
 
-### ALFA PDF Reader
+# 📄 ALFA PDF Reader
 
-Desktop PDF Reader desenvolvido com Electron + React + TypeScript.
+Desktop PDF Reader profissional desenvolvido com Electron + React + TypeScript.
 
-### Features:
-- 📄 Renderização de PDFs
-- 🔍 Sistema de Zoom
-- 📚 Scroll contínuo vertical
-- ⚡ Hooks customizados
-- 🎨 Interface moderna dark
-- 🖥️ Desktop App com Electron
+Um aplicativo focado em experiência de leitura, abertura rápida de arquivos e fluxo de impressão integrado ao sistema operacional.
+
+---
+
+## 🧠 Experiência de Uso
+
+O ALFA PDF Reader foi pensado como um software de uso real, com fluxo próximo de aplicações comerciais:
+
+### 🖥️ Tela inicial
+- Aplicação inicia em estado limpo e responsivo
+- Interface minimalista com foco no CTA principal
+- Botão de abertura de PDF destacado
+
+### 📂 Integração com sistema
+- Detectado como aplicação padrão para arquivos PDF
+- Suporte a abertura direta via Explorer do Windows
+
+### 🔒 Segurança de documentos
+- Suporte a PDFs protegidos por senha
+- Modal de autenticação antes da renderização
+
+### 📄 Leitura e navegação
+- Renderização otimizada de PDFs
+- Scroll contínuo vertical estilo leitura natural
+- Zoom dinâmico e responsivo
+
+### 🖨️ Impressão integrada
+- Integração com impressoras do sistema
+- Suporte a Microsoft Print to PDF e impressoras físicas
+- Fluxo de impressão direto a partir do documento aberto
+
+---
+
+## 🧩 Arquitetura técnica
+
+- Electron para runtime desktop
+- React para interface
+- TypeScript para tipagem forte
+- Hooks customizados para:
+  - carregamento de PDF
+  - navegação de páginas
+  - controle de zoom
+- Pipeline otimizado para renderização contínua
+
+---
+
+## 🎯 Conceito do produto
+
+O ALFA PDF Reader não é apenas um leitor de PDF.
+
+Ele foi estruturado como um **produto desktop real**, com foco em:
+
+- UX limpa e direta
+- Baixa fricção de uso
+- Integração nativa com Windows
+- Performance em arquivos grandes
+- Fluxo de impressão real
 
 ---
 
