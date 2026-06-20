@@ -163,7 +163,18 @@ export function ReaderPage() {
       showToast('Erro inesperado ao tentar salvar o PDF.', 'error')
     }
   }
+  useEffect(() => {
+    if (!window.electronAPI?.onOpenPdfFromSystem) return
 
+    window.electronAPI.onOpenPdfFromSystem(({ base64, fileName }) => {
+      const binary = atob(base64)
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i)
+      }
+      tryOpenPdf(bytes, fileName)
+    })
+  }, [])
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -280,5 +291,6 @@ export function ReaderPage() {
     </Layout>
   )
 }
+
 
 export default ReaderPage
