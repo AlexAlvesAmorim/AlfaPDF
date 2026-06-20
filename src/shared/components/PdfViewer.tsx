@@ -26,10 +26,16 @@ function PdfViewer({
   const [numPages, setNumPages] = useState(0)
 
   const isNavigating = useRef(false)
+  const isProgrammaticScroll = useRef(false)
   const isInitialLoad = useRef(true)
   const prevPage = useRef(tab.currentPage)
   const prevZoom = useRef(tab.zoom)
   const prevTabId = useRef(tab.id)
+
+  const documentOptions = useMemo(
+    () => (tab.password ? { password: tab.password } : undefined),
+    [tab.password]
+  )
 
   useEffect(() => {
     if (prevTabId.current !== tab.id) {
@@ -67,9 +73,18 @@ function PdfViewer({
     containerRef.current.scrollTop = tab.scrollTop
   }, [tab.id, containerRef, tab.scrollTop])
 
+  // Efeito de navegação por botão (Próxima/Anterior/Primeira/Última)
   useEffect(() => {
     if (!containerRef.current || numPages === 0) return
     if (prevPage.current === tab.currentPage) return
+
+    // Se a mudança de página já veio do próprio scroll do mouse,
+    // não faz scrollIntoView de novo — apenas sincroniza a referência.
+    if (isProgrammaticScroll.current) {
+      isProgrammaticScroll.current = false
+      prevPage.current = tab.currentPage
+      return
+    }
 
     isNavigating.current = true
     prevPage.current = tab.currentPage
@@ -118,10 +133,16 @@ function PdfViewer({
           }
         })
 
+        console.log('[SCROLL] visible:', currentVisible, 'prevPage.current:', prevPage.current, 'tab.currentPage:', tab.currentPage)
+
         if (currentVisible !== prevPage.current) {
+          console.log('[SCROLL] CHAMANDO onTabUpdate com currentPage:', currentVisible)
+          isProgrammaticScroll.current = true
           prevPage.current = currentVisible
           onTabUpdate({ currentPage: currentVisible })
         }
+      } else {
+        console.log('[SCROLL] BLOQUEADO — isNavigating é true')
       }
     }
 
@@ -132,10 +153,7 @@ function PdfViewer({
   if (!tab?.data) {
     return null
   }
-  const documentOptions = useMemo(
-    () => (tab.password ? { password: tab.password } : undefined),
-    [tab.password]
-  )
+
   return (
     <div ref={containerRef} className="pdf-container">
       <Document

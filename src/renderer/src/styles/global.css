@@ -19,21 +19,7 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  background:
-    repeating-linear-gradient(0deg,
-      transparent,
-      transparent 2px,
-      rgba(228, 0, 43, 0.015) 2px,
-      rgba(228, 0, 43, 0.015) 4px),
-    radial-gradient(circle at 15% 25%, rgba(228, 0, 43, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 75%, rgba(100, 50, 200, 0.06) 0%, transparent 40%),
-    radial-gradient(circle at center,
-      #1a1a1a 0%,
-      #121212 40%,
-      #0a0a0a 75%,
-      #000000 100%);
-
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(228, 0, 43, 0.015) 2px, rgba(228, 0, 43, 0.015) 4px), radial-gradient(circle at 15% 25%, rgba(228, 0, 43, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 75%, rgba(100, 50, 200, 0.06) 0%, transparent 40%), radial-gradient(circle at center, #1a1a1a 0%, #121212 40%, #0a0a0a 75%, #000000 100%);
   overflow: auto;
   color: var(--text-primary);
   position: relative;
@@ -55,10 +41,7 @@ body::before {
 }
 
 /* ==================== SHARED KEYFRAMES ==================== */
-/*
- * FIX: gradient-shift estava duplicado em toolbar.css e pdfviewer.css.
- * Centralizado aqui. Remova de ambos os arquivos.
- */
+/* * FIX: gradient-shift estava duplicado em toolbar.css e pdfviewer.css. * Centralizado aqui. Remova de ambos os arquivos. */
 @keyframes grain {
 
   0%,
@@ -138,18 +121,14 @@ code {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg,
-      rgba(228, 0, 43, 0.6) 0%,
-      rgba(180, 0, 35, 0.8) 100%);
+  background: linear-gradient(180deg, rgba(228, 0, 43, 0.6) 0%, rgba(180, 0, 35, 0.8) 100%);
   border-radius: 0;
   border: 3px solid #0a0a0a;
   transition: background var(--duration-normal) var(--ease-smooth);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg,
-      rgba(228, 0, 43, 0.9) 0%,
-      rgba(255, 20, 70, 1) 100%);
+  background: linear-gradient(180deg, rgba(228, 0, 43, 0.9) 0%, rgba(255, 20, 70, 1) 100%);
   box-shadow: 0 0 12px rgba(228, 0, 43, 0.5);
 }
 
@@ -182,48 +161,87 @@ code {
 .password-dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-modal);
+
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  z-index: 99999;
+
+  animation: fadeIn 0.2s ease-out;
 }
 
 .password-dialog {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 24px;
-  width: 360px;
+  width: 420px;
+
+  background:
+    linear-gradient(180deg,
+      rgba(30, 30, 30, 0.96),
+      rgba(15, 15, 15, 0.98));
+
+  border: 1px solid rgba(228, 0, 43, 0.18);
+
+  border-radius: 16px;
+
+  padding: 28px;
+
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(228, 0, 43, 0.12);
+
+  animation: modalEnter 0.2s ease-out;
 }
 
 .password-dialog__title {
-  font-size: 1rem;
+  font-family: var(--font-display);
+
+  font-size: 1.15rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+
+  color: #ffffff;
+
+  letter-spacing: 0.02em;
 }
 
 .password-dialog__message {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.65);
+
+  line-height: 1.5;
+
+  font-size: 0.9rem;
 }
 
 .password-dialog__input {
   width: 100%;
-  padding: 8px 12px;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
-  outline: none;
+
+  padding: 12px 14px;
+
+  background: rgba(255, 255, 255, 0.03);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 10px;
+
+  color: #fff;
+
+  transition: all 0.2s ease;
 }
 
 .password-dialog__input:focus {
-  border-color: var(--color-primary);
+  border-color: rgba(228, 0, 43, 0.7);
+
+  box-shadow:
+    0 0 0 3px rgba(228, 0, 43, 0.12),
+    0 0 15px rgba(228, 0, 43, 0.2);
 }
 
 .password-dialog__actions {
@@ -242,19 +260,50 @@ code {
 
 .password-dialog__btn--cancel {
   background: transparent;
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-border);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
 }
 
 .password-dialog__btn--cancel:hover {
-  background: var(--color-surface-hover);
+  background: var(--glass-light);
 }
 
 .password-dialog__btn--confirm {
-  background: var(--color-primary);
+  background:
+    linear-gradient(180deg,
+      rgba(228, 0, 43, 1),
+      rgba(180, 0, 35, 1));
+
   color: white;
+
+  font-weight: 600;
 }
 
 .password-dialog__btn--confirm:hover {
-  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 0 20px rgba(228, 0, 43, 0.3);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

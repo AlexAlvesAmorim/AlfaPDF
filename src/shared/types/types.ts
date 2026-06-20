@@ -8,4 +8,5 @@ export interface PrintOptions {
   pageRange: 'all' | 'current' | 'custom'
   customPages?: string
   currentPage?: number
+  password?: string
 }

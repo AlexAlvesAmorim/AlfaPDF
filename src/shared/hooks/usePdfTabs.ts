@@ -40,10 +40,11 @@ export function usePdfTabs() {
     }, []);
 
     const updateTab = useCallback((id: string, updates: Partial<Omit<PdfTab, 'id' | 'data'>>) => {
+        console.log('[updateTab] chamado com:', updates)
         setTabs(prev => prev.map(tab =>
             tab.id === id ? { ...tab, ...updates } : tab
-        ));
-    }, []);
+        ))
+    }, [])
 
 
 

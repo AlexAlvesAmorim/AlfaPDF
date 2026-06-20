@@ -7,5 +7,5 @@ export interface PdfTab {
   totalPages?: number
   zoom: number
   scrollTop: number
-  password: string
+  password?: string
 }

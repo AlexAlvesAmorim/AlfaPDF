@@ -45,7 +45,10 @@ export function ReaderPage() {
   const tryOpenPdf = async (bytes: Uint8Array, name: string, password?: string) => {
     console.log('[tryOpenPdf] chamado, password:', password)
     try {
-      const blob = new Blob([bytes], { type: 'application/pdf' })
+      const blob = new Blob(
+        [new Uint8Array(bytes)],
+        { type: 'application/pdf' }
+      )
       const url = URL.createObjectURL(blob)
       await loadPdf(url, password)
       console.log('[tryOpenPdf] loadPdf ok, abrindo tab')
@@ -124,6 +127,7 @@ export function ReaderPage() {
         ...options,
         file,
         currentPage: activeTab.currentPage,
+        password: activeTab.password, // 👈
       })
     } catch (err) {
       console.error('Erro ao imprimir:', err)
@@ -145,6 +149,7 @@ export function ReaderPage() {
         ...options,
         file,
         currentPage: activeTab.currentPage,
+        password: activeTab.password, // 👈
       })
 
       if (result?.success) {

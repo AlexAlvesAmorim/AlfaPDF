@@ -27,10 +27,15 @@ function parsePageRanges(input: string, totalPages: number): number[] {
 }
 
 async function buildFilteredPdf(
-  options: PrintOptions & { file: Uint8Array }
+  options: PrintOptions & { file: Uint8Array; password?: string }
 ): Promise<Uint8Array> {
   const originalBuffer = Buffer.from(options.file)
-  const pdfDoc = await PDFDocument.load(originalBuffer)
+  console.log('[PRINT] password:', options.password)
+
+  const pdfDoc = await PDFDocument.load(originalBuffer, {
+    ignoreEncryption: true, // 👈
+  })
+
   const totalPages = pdfDoc.getPageCount()
 
   let pagesToInclude: number[]
@@ -74,7 +79,8 @@ function createWindow(): void {
   }
 }
 
-// ─── IPC Handlers ────────────────────────────────────────────────────────────
+// IPC'S
+
 
 ipcMain.handle('open-pdf-dialog', async () => {
   const result = await dialog.showOpenDialog({
@@ -90,26 +96,41 @@ ipcMain.handle('read-pdf-file', async (_event, filePath: string) => {
 })
 
 ipcMain.handle('get-printers', async () => {
-  if (!mainWindow) return []
+  console.log('[PRINTERS] Handler chamado')
+
+  if (!mainWindow) {
+    console.log('[PRINTERS] mainWindow null')
+    return []
+  }
+
   const printers = await mainWindow.webContents.getPrintersAsync()
-  return printers.map(p => ({ name: p.name, isDefault: p.isDefault }))
+  console.log('[PRINTERS] Encontradas:', printers.length)
+
+  return printers.map(p => ({
+    name: p.name,
+    isDefault: p.isDefault,
+  }))
 })
 
 ipcMain.handle(
   'print-silent',
-  async (_event, options: PrintOptions & { file: Uint8Array }) => {
-    const tmpPdfPath = path.join(app.getPath('temp'), `alfa-print-${Date.now()}.pdf`)
+  async (_event, options: PrintOptions & { file: Uint8Array; password?: string }) => {
     const tmpHtmlPath = path.join(app.getPath('temp'), `alfa-print-${Date.now()}.html`)
     let printWin: BrowserWindow | null = null
 
     try {
-      const pdfBytes = await buildFilteredPdf(options)
-      fs.writeFileSync(tmpPdfPath, Buffer.from(pdfBytes))
-
       const printerName = options.printerName
       if (!printerName) throw new Error('Nenhuma impressora selecionada.')
 
-      const pdfBase64 = Buffer.from(pdfBytes).toString('base64')
+      // Envia o PDF ORIGINAL (ainda criptografado) — o PDF.js descriptografa no client
+      const pdfBase64 = Buffer.from(options.file).toString('base64')
+
+      // Calcula quais páginas imprimir (em JS, repassado pro script)
+      const pageRangeConfig = JSON.stringify({
+        pageRange: options.pageRange,
+        currentPage: options.currentPage,
+        customPages: options.customPages,
+      })
 
       const htmlContent = `<!DOCTYPE html>
 <html>
@@ -138,12 +159,46 @@ ipcMain.handle(
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
-    pdfjsLib.getDocument({ data: bytes }).promise.then(async (pdf) => {
-      const container = document.getElementById('container');
-      const total = pdf.numPages;
+    const password = ${options.password ? `'${options.password}'` : 'undefined'};
+    const config = ${pageRangeConfig};
 
-      for (let i = 1; i <= total; i++) {
-        const page = await pdf.getPage(i);
+    function parsePageRanges(input, totalPages) {
+      const pages = new Set();
+      for (const part of input.split(',')) {
+        const trimmed = part.trim();
+        if (trimmed.includes('-')) {
+          const [start, end] = trimmed.split('-').map(Number);
+          for (let i = start; i <= Math.min(end, totalPages); i++) {
+            if (i >= 1) pages.add(i);
+          }
+        } else {
+          const n = Number(trimmed);
+          if (n >= 1 && n <= totalPages) pages.add(n);
+        }
+      }
+      return Array.from(pages).sort((a, b) => a - b);
+    }
+
+    const loadingTask = pdfjsLib.getDocument({
+      data: bytes,
+      ...(password ? { password } : {}),
+    });
+
+    loadingTask.promise.then(async (pdf) => {
+      const container = document.getElementById('container');
+      const totalPages = pdf.numPages;
+
+      let pagesToRender;
+      if (config.pageRange === 'current') {
+        pagesToRender = [config.currentPage || 1];
+      } else if (config.pageRange === 'custom' && config.customPages) {
+        pagesToRender = parsePageRanges(config.customPages, totalPages);
+      } else {
+        pagesToRender = Array.from({ length: totalPages }, (_, i) => i + 1);
+      }
+
+      for (const pageNum of pagesToRender) {
+        const page = await pdf.getPage(pageNum);
         const viewport = page.getViewport({ scale: 2.0 });
 
         const canvas = document.createElement('canvas');
@@ -159,8 +214,10 @@ ipcMain.handle(
         }).promise;
       }
 
-      // Avisa o main que todos os canvases estão prontos
       ipcRenderer.send('pdf-render-complete');
+    }).catch((err) => {
+      console.error('Erro ao renderizar PDF para impressão:', err);
+      ipcRenderer.send('pdf-render-complete'); // libera mesmo com erro pra não travar
     });
   </script>
 </body>
@@ -180,13 +237,11 @@ ipcMain.handle(
 
       await printWin.loadFile(tmpHtmlPath)
 
-      // Aguarda o PDF.js sinalizar que terminou de renderizar
       await new Promise<void>((resolve) => {
         ipcMain.once('pdf-render-complete', () => {
           console.log('[PRINT] PDF.js renderização concluída')
           resolve()
         })
-        // Fallback: 15s máximo
         setTimeout(resolve, 15000)
       })
 
@@ -212,35 +267,45 @@ ipcMain.handle(
     } finally {
       if (printWin && !printWin.isDestroyed()) printWin.close()
       setTimeout(() => {
-        try { fs.unlinkSync(tmpPdfPath) } catch { }
         try { fs.unlinkSync(tmpHtmlPath) } catch { }
       }, 5000)
     }
   }
 )
 
-ipcMain.handle('save-as-pdf', async (_event, options: PrintOptions & { file: Uint8Array }) => {
-  try {
-    const pdfBytes = await buildFilteredPdf(options)
-
-    const { filePath: savePath, canceled } = await dialog.showSaveDialog({
-      title: 'Salvar PDF',
-      defaultPath: path.join(app.getPath('documents'), 'documento.pdf'),
-      filters: [{ name: 'PDF', extensions: ['pdf'] }],
-      properties: ['createDirectory', 'showOverwriteConfirmation'],
-    })
-
-    if (canceled || !savePath) {
-      return { success: false, canceled: true }
+ipcMain.handle(
+  'save-as-pdf',
+  async (_event, options: PrintOptions & { file: Uint8Array; password?: string }) => {
+    if (options.password) {
+      return {
+        success: false,
+        error: 'PDFs protegidos por senha não podem ser salvos diretamente. Use "Imprimir" e selecione "Microsoft Print to PDF" como impressora.',
+      }
     }
 
-    fs.writeFileSync(savePath, Buffer.from(pdfBytes))
-    return { success: true, path: savePath }
-  } catch (err: any) {
-    console.error('[save-as-pdf] Erro:', err)
-    return { success: false, error: err.message }
+    try {
+      const pdfBytes = await buildFilteredPdf(options)
+
+      const { filePath: savePath, canceled } = await dialog.showSaveDialog({
+        title: 'Salvar PDF',
+        defaultPath: path.join(app.getPath('documents'), 'documento.pdf'),
+        filters: [{ name: 'PDF', extensions: ['pdf'] }],
+        properties: ['createDirectory', 'showOverwriteConfirmation'],
+      })
+
+      if (canceled || !savePath) {
+        return { success: false, canceled: true }
+      }
+
+      fs.writeFileSync(savePath, Buffer.from(pdfBytes))
+
+      return { success: true, path: savePath }
+    } catch (err: any) {
+      console.error('[save-as-pdf] Erro:', err)
+      return { success: false, error: err.message }
+    }
   }
-})
+)
 
 // ─── App lifecycle ────────────────────────────────────────────────────────────
 
