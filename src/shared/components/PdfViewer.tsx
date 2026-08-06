@@ -148,6 +148,7 @@ function PdfViewer({
 
     container.addEventListener('scroll', handleScroll, { passive: true })
     return () => container.removeEventListener('scroll', handleScroll)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerRef, onTabUpdate])
 
   if (!tab?.data) {

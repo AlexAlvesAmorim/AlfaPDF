@@ -13,13 +13,13 @@ export class PasswordWrongError extends Error {
 }
 
 export async function loadPdf(filePath: string, password?: string) {
-    return new Promise<{ pdf: any; totalPages: number }>((resolve, reject) => {
+    return new Promise<{ pdf: unknown; totalPages: number }>((resolve, reject) => {
         const loadingTask = pdfjsLib.getDocument({
             url: filePath,
             ...(password ? { password } : {}),
         })
 
-        loadingTask.onPassword = (_updatePassword, reason) => {
+        loadingTask.onPassword = (_updatePassword: (password: string) => void, reason: number) => {
             if (reason === 2) {
                 reject(new PasswordWrongError())
             } else {

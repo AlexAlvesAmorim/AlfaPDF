@@ -31,6 +31,11 @@ declare global {
       saveAsPdf: (
         options: PrintOptions & { file: Uint8Array }
       ) => Promise<SavePdfResult>;
+
+      /** Escuta evento de abertura de PDF via sistema (double-click / "Abrir com"). */
+      onOpenPdfFromSystem: (
+        callback: (data: { buffer: Uint8Array; fileName: string }) => void
+      ) => void;
     };
   }
 }

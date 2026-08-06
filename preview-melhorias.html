@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALFA PDF Reader — Preview de Melhorias</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary: #e4002b;
+      --primary-dark: #b20022;
+      --primary-light: #ff2d55;
+      --primary-glow: rgba(228, 0, 43, 0.3);
+      --bg-deepest: #0a0a0a;
+      --bg-base: #121212;
+      --bg-elevated: #1a1a1a;
+      --bg-elevated2: #222;
+      --text: #f5f5f5;
+      --text-secondary: #b8b8b8;
+      --text-tertiary: #888;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(228, 0, 43, 0.3);
+      --radius: 8px;
+      --radius-pill: 999px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Crimson Pro', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --sidebar-w: 0px;
+      --header-h: 56px;
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text);
+      font-family: var(--font-display);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Grain Overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* Browser frame mock */
+    .mockup {
+      width: 1280px;
+      height: 800px;
+      background: var(--bg-base);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    /* ===== TOP BAR / HEADER ===== */
+    .topbar {
+      height: var(--header-h);
+      background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-base) 100%);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 100;
+      transition: transform var(--transition), opacity var(--transition);
+    }
+
+    .topbar.scrolled {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .topbar-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      box-shadow: 0 0 16px var(--primary-glow);
+    }
+
+    .topbar-logo-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.5px;
+    }
+
+    .topbar-logo-text span {
+      color: var(--primary);
+    }
+
+    .topbar-divider {
+      width: 1px;
+      height: 28px;
+      background: linear-gradient(to bottom, transparent, var(--border), transparent);
+      flex-shrink: 0;
+    }
+
+    .topbar-filename {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .topbar-filename strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .topbar-search {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 0 14px;
+      height: 32px;
+      gap: 8px;
+      min-width: 240px;
+      transition: border-color var(--transition);
+    }
+
+    .topbar-search:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(228, 0, 43, 0.12);
+    }
+
+    .topbar-search svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: var(--text-tertiary);
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .topbar-search input {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 12px;
+      font-family: var(--font-display);
+      outline: none;
+      width: 100%;
+    }
+
+    .topbar-search input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all var(--transition);
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-accent);
+    }
+
+    /* ===== BODY LAYOUT ===== */
+    .body-layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 220px;
+      background: linear-gradient(180deg, rgba(18, 18, 18, 0.98), rgba(10, 10, 10, 0.98));
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sidebar.collapsed {
+      width: 0;
+      opacity: 0;
+      border-right: none;
+    }
+
+    .sidebar-header {
+      padding: 14px 16px 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header button {
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px;
+      transition: color var(--transition);
+    }
+
+    .sidebar-header button:hover {
+      color: var(--primary);
+    }
+
+    .sidebar-thumbs {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sidebar-thumbs::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-thumbs::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .thumb-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .thumb-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .thumb-item.active {
+      background: rgba(228, 0, 43, 0.1);
+      border: 1px solid rgba(228, 0, 43, 0.25);
+      box-shadow: 0 0 20px rgba(228, 0, 43, 0.08);
+    }
+
+    .thumb-item.active::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 24px;
+      background: var(--primary);
+      border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .thumb-preview {
+      width: 48px;
+      height: 64px;
+      background: #fff;
+      border-radius: 3px;
+      flex-shrink: 0;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .thumb-preview .line {
+      width: 80%;
+      height: 3px;
+      border-radius: 1px;
+      margin: 2px auto;
+    }
+
+    .thumb-preview .line:nth-child(1) {
+      width: 65%;
+    }
+
+    .thumb-preview .line:nth-child(2) {
+      width: 80%;
+    }
+
+    .thumb-preview .line:nth-child(3) {
+      width: 55%;
+    }
+
+    .thumb-num {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    .thumb-item.active .thumb-num {
+      color: var(--primary-light);
+      font-weight: 600;
+    }
+
+    /* Sidebar toggle */
+    .sidebar-toggle {
+      position: absolute;
+      left: 220px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 48px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-left: none;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1), all var(--transition);
+      z-index: 10;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg-elevated2);
+      color: var(--text);
+    }
+
+    .sidebar.collapsed+.sidebar-toggle {
+      left: 0;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      position: relative;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-bar {
+      height: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 37%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 12px var(--primary-glow);
+      transition: width 0.3s ease;
+    }
+
+    /* ===== TOOLBAR ===== */
+    .pdf-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      flex-shrink: 0;
+    }
+
+    .toolbar-inner {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, rgba(12, 6, 6, 0.92), rgba(20, 13, 13, 0.92));
+      border: 1px solid rgba(228, 0, 43, 0.18);
+      border-radius: var(--radius-pill);
+      padding: 4px 12px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(228, 0, 43, 0.08);
+      position: relative;
+      transition: all var(--transition);
+    }
+
+    .toolbar-inner:hover {
+      transform: translateY(-2px);
+      border-color: rgba(228, 0, 43, 0.35);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 32px rgba(228, 0, 43, 0.18);
+    }
+
+    .toolbar-inner::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(135deg, var(--primary), #ff6b00, #9d00ff, #ff6b00, var(--primary));
+      background-size: 200% 200%;
+      border-radius: inherit;
+      opacity: 0;
+      z-index: -1;
+      filter: blur(8px);
+      transition: opacity var(--transition);
+      animation: gradientShift 4s ease infinite;
+    }
+
+    .toolbar-inner:hover::before {
+      opacity: 0.4;
+    }
+
+    @keyframes gradientShift {
+
+      0%,
+      100% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+    }
+
+    .tb-group {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      position: relative;
+    }
+
+    .tb-group::after {
+      content: '';
+      width: 1px;
+      height: 20px;
+      background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.08), transparent);
+      margin-left: 4px;
+    }
+
+    .tb-group:last-child::after {
+      display: none;
+    }
+
+    .tb-btn {
+      height: 34px;
+      min-width: 34px;
+      padding: 0 8px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tb-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .tb-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .tb-btn:active {
+      transform: translateY(0);
+    }
+
+    .tb-btn.primary {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(228, 0, 43, 0.3);
+    }
+
+    .tb-btn.primary:hover {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      box-shadow: 0 8px 20px rgba(228, 0, 43, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .tb-info {
+      height: 34px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(228, 0, 43, 0.08);
+      border: 1px solid rgba(228, 0, 43, 0.15);
+      border-radius: var(--radius);
+      color: var(--text);
+      letter-spacing: 0.3px;
+      user-select: none;
+    }
+
+    /* ===== PDF VIEWER ===== */
+    .pdf-viewport {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 20px 0;
+      position: relative;
+    }
+
+    .pdf-viewport::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .pdf-viewport::-webkit-scrollbar-track {
+      background: linear-gradient(to bottom, rgba(228, 0, 43, 0.03), transparent);
+      border-left: 1px solid var(--border);
+    }
+
+    .pdf-viewport::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(228, 0, 43, 0.5), rgba(180, 0, 35, 0.7));
+      border-radius: 0;
+      border: 2px solid var(--bg-base);
+    }
+
+    .pdf-viewport::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, rgba(228, 0, 43, 0.8), #ff1446);
+      box-shadow: 0 0 12px rgba(228, 0, 43, 0.5);
+    }
+
+    /* PDF Pages */
+    .pdf-page-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 24px 0;
+      position: relative;
+    }
+
+    .pdf-page-wrapper::after {
+      content: '';
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(228, 0, 43, 0.06), transparent);
+    }
+
+    .pdf-page {
+      width: 595px;
+      min-height: 842px;
+      background: #fff;
+      border-radius: 2px;
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        0 12px 40px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(0, 0, 0, 0.03);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transform-origin: top center;
+    }
+
+    .pdf-page:hover {
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        0 16px 48px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Page curl shadow effect */
+    .pdf-page::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(ellipse at 100% 100%,
+          rgba(0, 0, 0, 0.12) 0%,
+          rgba(0, 0, 0, 0.06) 40%,
+          transparent 70%);
+      border-radius: 0 0 40px 0;
+      pointer-events: none;
+    }
+
+    /* Paper texture */
+    .pdf-page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n2)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.5;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+    }
+
+    /* Page content simulation */
+    .page-content {
+      padding: 60px 56px;
+    }
+
+    .page-content h1 {
+      font-family: Georgia, serif;
+      font-size: 24px;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+
+    .page-content p {
+      font-family: Georgia, serif;
+      font-size: 12px;
+      color: #333;
+      line-height: 1.8;
+      margin-bottom: 14px;
+      text-align: justify;
+    }
+
+    .page-content .block {
+      background: #f5f5f5;
+      border-left: 3px solid #e4002b;
+      padding: 14px 18px;
+      margin: 16px 0;
+      border-radius: 0 4px 4px 0;
+      font-style: italic;
+    }
+
+    .page-content .block p {
+      margin-bottom: 0;
+      font-size: 11px;
+      color: #555;
+    }
+
+    /* Page number */
+    .page-number {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: #999;
+    }
+
+    /* Page transition animation */
+    .pdf-page-wrapper {
+      animation: pageEnter 0.4s ease-out;
+    }
+
+    @keyframes pageEnter {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===== FAB ===== */
+    .fab {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      border: 1px solid var(--border-accent);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(228, 0, 43, 0.4), 0 0 40px rgba(228, 0, 43, 0.1);
+      transition: all var(--transition);
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(60px) scale(0.8);
+      pointer-events: none;
+    }
+
+    .fab.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .fab:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 12px 32px rgba(228, 0, 43, 0.5);
+    }
+
+    .fab svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+
+    /* ===== PRINT QUALITY INDICATOR ===== */
+    .quality-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 12px;
+      border-radius: var(--radius-pill);
+      background: rgba(228, 0, 43, 0.1);
+      border: 1px solid rgba(228, 0, 43, 0.2);
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition);
+      margin-left: 8px;
+    }
+
+    .quality-badge:hover {
+      background: rgba(228, 0, 43, 0.18);
+      border-color: var(--border-accent);
+    }
+
+    .quality-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4caf50;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+    }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      color: var(--text);
+      animation: toastIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.success {
+      border-left: 3px solid #4caf50;
+    }
+
+    .toast.error {
+      border-left: 3px solid var(--primary);
+    }
+
+    .toast.info {
+      border-left: 3px solid #2196f3;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ===== ANNOTATION LABELS ===== */
+    .annotation {
+      position: absolute;
+      background: rgba(228, 0, 43, 0.9);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 200;
+      font-family: var(--font-mono);
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .annotation::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: rgba(228, 0, 43, 0.9);
+      transform: rotate(45deg);
+    }
+
+    .annotation.top::after {
+      bottom: -4px;
+      left: 50%;
+      margin-left: -4px;
+    }
+
+    .annotation.right::after {
+      left: -4px;
+      top: 50%;
+      margin-top: -4px;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 4px 12px rgba(228, 0, 43, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 4px 20px rgba(228, 0, 43, 0.7);
+      }
+    }
+
+    /* ===== STATUS BAR ===== */
+    .statusbar {
+      height: 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+      background: var(--bg-deepest);
+    }
+
+    .statusbar-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .statusbar-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #4caf50;
+      box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1300px) {
+      .mockup {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="mockup">
+
+    <!-- ===== TOPBAR ===== -->
+    <header class="topbar">
+      <div class="topbar-logo">
+        <div class="topbar-logo-icon">A</div>
+        <span class="topbar-logo-text">ALFA <span>PDF</span></span>
+      </div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-filename">
+        <strong>relatorio-anual-2026.pdf</strong> &mdash; 47 páginas &middot; 12.4 MB
+      </div>
+
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input type="text" placeholder="Buscar no documento... (Ctrl+F)">
+      </div>
+
+      <div class="topbar-actions">
+        <div class="quality-badge">
+          <span class="quality-dot"></span>
+          Máxima
+        </div>
+        <button class="theme-toggle" title="Alternar tema">&#9681;</button>
+      </div>
+    </header>
+
+    <!-- ===== BODY ===== -->
+    <div class="body-layout">
+
+      <!-- ===== SIDEBAR ===== -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <span>Páginas</span>
+          <button onclick="document.getElementById('sidebar').classList.toggle('collapsed')">&times;</button>
+        </div>
+        <div class="sidebar-thumbs">
+
+          <div class="thumb-item active">
+            <div class="thumb-preview">
+              <div style="padding:12px 6px">
+                <div class="line" style="background:#ddd"></div>
+                <div class="line" style="background:#e0e0e0"></div>
+                <div class="line" style="background:#d0d0d0"></div>
+                <div class="line" style="background:#ccc;width:45%"></div>
+              </div>
+            </div>
+            <span class="thumb-num">1</span>
+          </div>
+
+          <div class="thumb-item">
+            <div class="thumb-preview">
+              <div style="padding:12px 6px">
+                <div class="line" style="background:#ddd;width:55%"></div>
+                <div class="line" style="background:#e0e0e0;width:75%"></div>
+                <div class="line" style="background:#d0d0d0;width:60%"></div>
+              </div>
+            </div>
+            <span class="thumb-num">2</span>
+          </div>
+
+          <div class="thumb-item">
+            <div class="thumb-preview">
+              <div style="padding:12px 6px">
+                <div class="line" style="background:#ddd;width:70%"></div>
+                <div class="line" style="background:#e0e0e0;width:50%"></div>
+                <div class="line" style="background:#d0d0d0;width:80%"></div>
+                <div class="line" style="background:#ccc;width:35%"></div>
+              </div>
+            </div>
+            <span class="thumb-num">3</span>
+          </div>
+
+          <div class="thumb-item">
+            <div class="thumb-preview">
+              <div style="padding:12px 6px">
+                <div class="line" style="background:#ddd;width:60%"></div>
+                <div class="line" style="background:#e0e0e0;width:40%"></div>
+                <div class="line" style="background:#d0d0d0;width:70%"></div>
+              </div>
+            </div>
+            <span class="thumb-num">4</span>
+          </div>
+
+          <div class="thumb-item">
+            <div class="thumb-preview">
+              <div style="padding:12px 6px">
+                <div class="line" style="background:#ddd;width:80%"></div>
+                <div class="line" style="background:#e0e0e0;width:55%"></div>
+                <div class="line" style="background:#d0d0d0;width:65%"></div>
+                <div class="line" style="background:#ccc;width:30%"></div>
+              </div>
+            </div>
+            <span class="thumb-num">5</span>
+          </div>
+
+          <div class="thumb-item">
+            <div class="thumb-preview">
+              <div style="padding:12px 6px">
+                <div class="line" style="background:#ddd;width:45%"></div>
+                <div class="line" style="background:#e0e0e0;width:70%"></div>
+                <div class="line" style="background:#d0d0d0;width:50%"></div>
+              </div>
+            </div>
+            <span class="thumb-num">6</span>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- Sidebar toggle button -->
+      <button class="sidebar-toggle"
+        onclick="document.getElementById('sidebar').classList.toggle('collapsed')">&#9654;</button>
+
+      <!-- ===== MAIN ===== -->
+      <div class="main-area">
+
+        <!-- Progress bar -->
+        <div class="progress-bar">
+          <div class="progress-bar-fill"></div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="pdf-toolbar">
+          <div class="toolbar-inner">
+            <div class="tb-group">
+              <button class="tb-btn" title="Primeira pagina">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="18 4 12 12 18 20" />
+                  <line x1="6" y1="4" x2="6" y2="20" />
+                </svg>
+              </button>
+              <button class="tb-btn" title="Pagina anterior">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="15 4 9 12 15 20" />
+                </svg>
+              </button>
+              <span class="tb-info">Página 1 de 47</span>
+              <button class="tb-btn" title="Proxima pagina">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="9 4 15 12 9 20" />
+                </svg>
+              </button>
+              <button class="tb-btn" title="Ultima pagina">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="6 4 12 12 6 20" />
+                  <line x1="18" y1="4" x2="18" y2="20" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="tb-group">
+              <button class="tb-btn" title="Zoom out">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  <line x1="8" y1="11" x2="14" y2="11" />
+                </svg>
+              </button>
+              <span class="tb-info">100%</span>
+              <button class="tb-btn" title="Zoom in">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  <line x1="11" y1="8" x2="11" y2="14" />
+                  <line x1="8" y1="11" x2="14" y2="11" />
+                </svg>
+              </button>
+              <button class="tb-btn" title="Resetar zoom">
+                <svg viewBox="0 0 24 24">
+                  <path d="M1 4v6h6" />
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="tb-group">
+              <button class="tb-btn primary" title="Imprimir">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="6 9 6 2 18 2 18 9" />
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                  <rect x="6" y="14" width="12" height="8" />
+                </svg>
+                Imprimir
+              </button>
+              <button class="tb-btn" title="Abrir PDF">
+                <svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="12" y1="18" x2="12" y2="12" />
+                  <line x1="9" y1="15" x2="15" y2="15" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PDF Viewport -->
+        <div class="pdf-viewport" id="pdfViewport">
+
+          <!-- Page 1 -->
+          <div class="pdf-page-wrapper">
+            <div class="pdf-page">
+              <div class="page-content">
+                <h1>Relatorio Anual 2026</h1>
+                <p>O exercicio de 2026 foi marcado por uma expansao significativa das operacoes da empresa, com
+                  crescimento de 34% na receita liquida em comparacao ao ano anterior. Este resultado foi impulsionado
+                  principalmente pelo aumento da capacidade de producao e pela entrada em novos mercados internacionais.
+                </p>
+                <p>Os investimentos em tecnologia e inovacao totalizaram R$ 127,4 milhoes, representando 12% da receita
+                  liquida. Deste montante, 45% foram destinados a projetos de transformacao digital, 30% a pesquisa e
+                  desenvolvimento de novos produtos, e 25% a modernizacao da infraestrutura de TI.</p>
+                <div class="block">
+                  <p>"2026 foi o ano em que consolidamos nossa posicao como lideres de mercado na America Latina,
+                    superando desafios macroeconomicos com disciplina financeira e inovacao constante." &mdash;
+                    Diretoria Executiva</p>
+                </div>
+                <p>O EBITDA ajustado alcancou R$ 234,5 milhoes, com margem de 22,1%, representando um aumento de 4,2
+                  pontos percentuais em relacao a 2025. Este desempenho reflete as iniciativas de eficiencia operacional
+                  implementadas ao longo do ano.</p>
+                <p>A geracao de caixa operacional foi de R$ 198,3 milhoes, permitindo a reducao da alavancagem
+                  financeira de 2,8x para 1,9x EBITDA. A empresa encerrou o periodo com posicao de caixa de R$ 312,6
+                  milhoes.</p>
+                <p>Em termos de sustentabilidade, a empresa alcancou a meta de reducao de 25% nas emissoes de carbono
+                  com antecedencia de 2 anos em relacao ao planejado, gracas aos investimentos em energia solar e
+                  eficiencia energetica nas unidades fabris.</p>
+              </div>
+              <div class="page-number">1</div>
+            </div>
+          </div>
+
+          <!-- Page 2 -->
+          <div class="pdf-page-wrapper" style="animation-delay:0.1s">
+            <div class="pdf-page">
+              <div class="page-content">
+                <h1>Destaques Financeiros</h1>
+                <p>O conselho de administracao aprovou a distribuicao de dividendos no valor de R$ 1,27 por acao,
+                  equivalente a 40% do lucro liquido ajustado de R$ 187,2 milhoes. O dividend yield de 4,8% posiciona a
+                  empresa entre as melhores pagadoras do setor.</p>
+                <p>As operacoes internacionais responderam por 38% da receita total, com destaque para os mercados do
+                  Chile, Colombia e Mexico, que apresentaram crescimento medio de 41% no periodo. A entrada operacional
+                  no Peru e na Argentina esta prevista para o primeiro trimestre de 2027.</p>
+                <p>O retorno sobre o capital investido (ROIC) alcancou 16,8%, superando a meta de 15% estabelecida no
+                  planejamento estrategico. Este resultado foi impulsionado pela maior eficiencia operacional e pela
+                  gestao ativa do capital de giro.</p>
+              </div>
+              <div class="page-number">2</div>
+            </div>
+          </div>
+
+          <!-- Page 3 -->
+          <div class="pdf-page-wrapper" style="animation-delay:0.2s">
+            <div class="pdf-page">
+              <div class="page-content">
+                <h1>Perspectivas 2027</h1>
+                <p>Para 2027, a empresa projeta crescimento de receita entre 18% e 22%, impulsionado pela expansao
+                  geografica, lancamento de 12 novos produtos e o aumento da capacidade de producao com a inauguracao de
+                  duas novas unidades fabris.</p>
+                <p>Os investimentos previstos sao de R$ 180 milhoes, com foco em inovacao, sustentabilidade e
+                  transformacao digital. A meta de margem EBITDA e de 23% a 25%, com geracao de caixa livre suficiente
+                  para manter a politica de dividendos e reduzir ainda mais a alavancagem.</p>
+                <p>A empresa mantem a perspectiva de rating de credito e continua monitorando ativamente o cenario
+                  macroeconomico para ajustar sua estrategia conforme necessario, mantendo a disciplina financeira que
+                  caracteriza sua gestao.</p>
+              </div>
+              <div class="page-number">3</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- FAB -->
+        <button class="fab visible" id="fab" title="Voltar ao topo">
+          <svg viewBox="0 0 24 24">
+            <polyline points="18 15 12 9 6 15" />
+          </svg>
+        </button>
+
+        <!-- Status Bar -->
+        <div class="statusbar">
+          <div class="statusbar-item">
+            <span class="statusbar-dot"></span>
+            Documento carregado
+          </div>
+          <div class="statusbar-item">|</div>
+          <div class="statusbar-item">Qualidade: <strong style="color:var(--text);font-weight:600">Maxima</strong> (300
+            DPI)</div>
+          <div class="statusbar-item">|</div>
+          <div class="statusbar-item">Zoom: 100%</div>
+          <div class="statusbar-item" style="margin-left:auto">3 / 47 páginas renderizadas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotation labels -->
+  <div class="annotation top" style="top:72px;right:24px">Header dinâmico retrátil</div>
+  <div class="annotation right" style="top:50%;left:224px">Sidebar de thumbnails</div>
+  <div class="annotation top" style="top:130px;left:50%;transform:translateX(-50%)">Toolbar com glow animado</div>
+  <div class="annotation top" style="top:580px;right:60px">Page-curl + paper texture</div>
+  <div class="annotation top" style="top:185px;left:350px">Barra de progresso</div>
+  <div class="annotation right" style="bottom:80px;left:auto;right:90px">FAB Voltar ao Topo</div>
+  <div class="annotation top" style="bottom:32px;left:50%;transform:translateX(-50%)">Status bar com info de qualidade
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container">
+    <div class="toast success">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      Documento carregado com sucesso
+    </div>
+  </div>
+
+  <script>
+    // Simula scroll para mostrar/esconder FAB e header
+    const viewport = document.getElementById('pdfViewport')
+    const topbar = document.querySelector('.topbar')
+    const fab = document.getElementById('fab')
+    let scrolled = false
+
+    viewport.addEventListener('scroll', () => {
+      const now = viewport.scrollTop > 60
+      if (now !== scrolled) {
+        scrolled = now
+        topbar.classList.toggle('scrolled', now)
+        fab.classList.toggle('visible', now)
+
+        // atualiza sidebar toggle position
+        const toggle = document.querySelector('.sidebar-toggle')
+        toggle.style.top = now ? '30%' : '50%'
+      }
+    })
+
+    fab.addEventListener('click', () => {
+      viewport.scrollTo({ top: 0, behavior: 'smooth' })
+    })
+
+    // Simula click na sidebar para toggle
+    document.querySelectorAll('.thumb-item').forEach(el => {
+      el.addEventListener('click', function () {
+        document.querySelectorAll('.thumb-item').forEach(e => e.classList.remove('active'))
+        this.classList.add('active')
+      })
+    })
+  </script>
+</body>
+
+</html>

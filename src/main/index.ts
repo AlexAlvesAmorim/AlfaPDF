@@ -306,13 +306,14 @@ ipcMain.handle(
           }
         )
       })
-    } catch (err: any) {
-      console.error('[PRINT] Erro:', err)
-      return { success: false, error: err.message }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('[PRINT] Erro:', message)
+      return { success: false, error: message }
     } finally {
       if (printWin && !printWin.isDestroyed()) printWin.close()
       setTimeout(() => {
-        try { fs.unlinkSync(tmpHtmlPath) } catch { }
+        try { fs.unlinkSync(tmpHtmlPath) } catch { /* ignora erro se arquivo já foi removido */ }
       }, 5000)
     }
   }
@@ -345,9 +346,10 @@ ipcMain.handle(
       fs.writeFileSync(savePath, Buffer.from(pdfBytes))
 
       return { success: true, path: savePath }
-    } catch (err: any) {
-      console.error('[save-as-pdf] Erro:', err)
-      return { success: false, error: err.message }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('[save-as-pdf] Erro:', message)
+      return { success: false, error: message }
     }
   }
 )

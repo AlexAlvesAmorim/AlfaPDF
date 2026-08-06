@@ -53,11 +53,12 @@ export function ReaderPage() {
       await loadPdf(url, password)
       console.log('[tryOpenPdf] loadPdf ok, abrindo tab')
       openPdf(blob, name, password) // passa o Blob, não o Uint8Array
-    } catch (err: any) {
-      console.log('[tryOpenPdf] erro capturado:', err.message)
-      if (err.message === 'PASSWORD_REQUIRED') {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.log('[tryOpenPdf] erro capturado:', message)
+      if (message === 'PASSWORD_REQUIRED') {
         setPasswordDialog({ open: true, bytes, name, wrongPassword: false })
-      } else if (err.message === 'PASSWORD_WRONG') {
+      } else if (message === 'PASSWORD_WRONG') {
         setPasswordDialog({ open: true, bytes, name, wrongPassword: true })
       } else {
         showToast('Erro ao abrir o PDF.', 'error')
@@ -154,11 +155,10 @@ export function ReaderPage() {
 
       if (result?.success) {
         showToast(`PDF salvo com sucesso em: ${result.path}`, 'success', 6000)
-      } else if (result?.canceled) {
-      } else {
+      } else if (!result?.canceled) {
         showToast(`Falha ao salvar PDF: ${result?.error ?? 'Erro desconhecido'}`, 'error')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao salvar como PDF:', err)
       showToast('Erro inesperado ao tentar salvar o PDF.', 'error')
     }
@@ -166,14 +166,10 @@ export function ReaderPage() {
   useEffect(() => {
     if (!window.electronAPI?.onOpenPdfFromSystem) return
 
-    window.electronAPI.onOpenPdfFromSystem(({ base64, fileName }) => {
-      const binary = atob(base64)
-      const bytes = new Uint8Array(binary.length)
-      for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i)
-      }
-      tryOpenPdf(bytes, fileName)
+    window.electronAPI.onOpenPdfFromSystem(({ buffer, fileName }) => {
+      tryOpenPdf(buffer, fileName)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -230,6 +226,7 @@ export function ReaderPage() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, activeTabId, closeTab])
 
   return (
