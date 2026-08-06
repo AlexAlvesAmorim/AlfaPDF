@@ -1,8 +1,21 @@
-*.ts linguist-language=TypeScript
+*.ts linguist-language=TypeScript linguist-detectable=true
+*.tsx linguist-language=TypeScript linguist-detectable=true
+*.js linguist-language=JavaScript linguist-generated=true
+*.cjs linguist-language=JavaScript linguist-generated=true
+*.mjs linguist-language=JavaScript linguist-generated=true
+package-lock.json linguist-language=JSON linguist-generated=true
+*.json linguist-language=JSON linguist-generated=true
+*.bmp linguist-language=Image linguist-generated=true
+*.html linguist-language=HTML linguist-generated=true
+
+# Ignore build outputs for language detection
+out/** linguist-generated=true
+release/** linguist-generated=true
+win-unpacked/** linguist-generated=true
+dist/** linguist-generated=true
+dist-ssr/** linguist-generated=true
+fdc/** linguist-generated=true
+
+# Force TypeScript as primary language
 *.tsx linguist-language=TypeScript
-*.js linguist-language=JavaScript
-*.cjs linguist-language=JavaScript
-*.mjs linguist-language=JavaScript
-package-lock.json linguist-language=JSON
-*.json linguist-language=JSON
-*.bmp linguist-language=Image
+*.ts linguist-language=TypeScript

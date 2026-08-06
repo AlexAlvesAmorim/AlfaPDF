@@ -70,9 +70,8 @@
   --duration-slow: 500ms;
   --duration-slower: 750ms;
 
-  /* ==================== SPACING ==================== */
   --space-1: 4px;
-  --space-1-5: 6px;   /* FIX: adicionado — era referenciado em toolbar.css mas ausente */
+  --space-1-5: 6px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
@@ -82,7 +81,6 @@
   --space-8: 64px;
   --space-9: 96px;
 
-  /* ==================== Z-INDEX ==================== */
   --z-grain: -1;
   --z-base: 1;
   --z-content: 10;
@@ -93,10 +91,8 @@
   --z-modal: 400;
   --z-tooltip: 500;
 
-  /* ==================== LAYOUT ==================== */
-  --header-height: 180px; /* FIX: centralizado — toolbar.css usa top: 100px dependendo disso */
+  --header-height: 180px;
 
-  /* ==================== TYPOGRAPHY ==================== */
   --font-display: 'Space Grotesk', sans-serif;
   --font-body: 'Crimson Pro', Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;

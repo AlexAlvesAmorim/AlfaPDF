@@ -6,7 +6,6 @@ import type { PrintOptions } from '../shared/types/types'
 
 let mainWindow: BrowserWindow | null = null
 
-// ── Captura de arquivo aberto via "Abrir com" / duplo clique ──
 function getPdfPathFromArgs(argv: string[]): string | null {
   const candidate = argv.find(
     (arg) => arg.toLowerCase().endsWith('.pdf') && fs.existsSync(arg)
@@ -16,7 +15,6 @@ function getPdfPathFromArgs(argv: string[]): string | null {
 
 let pendingPdfPath: string | null = getPdfPathFromArgs(process.argv)
 
-// ── Garante instância única ──
 const gotLock = app.requestSingleInstanceLock()
 
 if (!gotLock) {
@@ -102,7 +100,7 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    show: false, // Previne a tela preta inicial
+    show: false,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
@@ -126,8 +124,6 @@ function createWindow(): void {
     mainWindow.loadURL('http://localhost:5173')
   }
 }
-
-// ─── IPC Handlers ────────────────────────────────────────────────────────────
 
 ipcMain.handle('open-pdf-dialog', async () => {
   const result = await dialog.showOpenDialog({
@@ -171,6 +167,10 @@ ipcMain.handle(
 
       const pdfBase64 = Buffer.from(options.file).toString('base64')
 
+      const qualityScale = options.printQuality === 'draft' ? 1.0
+        : options.printQuality === 'high' ? 3.0
+        : 2.0
+
       const pageRangeConfig = JSON.stringify({
         pageRange: options.pageRange,
         currentPage: options.currentPage,
@@ -206,6 +206,7 @@ ipcMain.handle(
 
     const password = ${options.password ? `'${options.password}'` : 'undefined'};
     const config = ${pageRangeConfig};
+    const renderScale = ${qualityScale};
 
     function parsePageRanges(input, totalPages) {
       const pages = new Set();
@@ -244,7 +245,7 @@ ipcMain.handle(
 
       for (const pageNum of pagesToRender) {
         const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: 2.0 });
+        const viewport = page.getViewport({ scale: renderScale });
 
         const canvas = document.createElement('canvas');
         canvas.width = viewport.width;
@@ -313,7 +314,7 @@ ipcMain.handle(
     } finally {
       if (printWin && !printWin.isDestroyed()) printWin.close()
       setTimeout(() => {
-        try { fs.unlinkSync(tmpHtmlPath) } catch { /* ignora erro se arquivo já foi removido */ }
+        try { fs.unlinkSync(tmpHtmlPath) } catch { void 0 }
       }, 5000)
     }
   }
@@ -353,8 +354,6 @@ ipcMain.handle(
     }
   }
 )
-
-// ─── App lifecycle ────────────────────────────────────────────────────────────
 
 app.whenReady().then(createWindow)
 

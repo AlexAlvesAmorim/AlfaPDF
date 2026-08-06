@@ -1,3 +1,5 @@
+export type PrintQuality = 'draft' | 'normal' | 'high'
+
 export interface PrintOptions {
   printerName: string
   copies: number
@@ -9,4 +11,5 @@ export interface PrintOptions {
   customPages?: string
   currentPage?: number
   password?: string
+  printQuality: PrintQuality
 }

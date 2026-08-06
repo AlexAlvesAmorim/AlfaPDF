@@ -73,13 +73,10 @@ function PdfViewer({
     containerRef.current.scrollTop = tab.scrollTop
   }, [tab.id, containerRef, tab.scrollTop])
 
-  // Efeito de navegação por botão (Próxima/Anterior/Primeira/Última)
   useEffect(() => {
     if (!containerRef.current || numPages === 0) return
     if (prevPage.current === tab.currentPage) return
 
-    // Se a mudança de página já veio do próprio scroll do mouse,
-    // não faz scrollIntoView de novo — apenas sincroniza a referência.
     if (isProgrammaticScroll.current) {
       isProgrammaticScroll.current = false
       prevPage.current = tab.currentPage

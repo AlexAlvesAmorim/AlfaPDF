@@ -19,13 +19,22 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(228, 0, 43, 0.015) 2px, rgba(228, 0, 43, 0.015) 4px), radial-gradient(circle at 15% 25%, rgba(228, 0, 43, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 75%, rgba(100, 50, 200, 0.06) 0%, transparent 40%), radial-gradient(circle at center, #1a1a1a 0%, #121212 40%, #0a0a0a 75%, #000000 100%);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(228, 0, 43, 0.015) 2px,
+      rgba(228, 0, 43, 0.015) 4px
+    ),
+    radial-gradient(circle at 15% 25%, rgba(228, 0, 43, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(100, 50, 200, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at center, #1a1a1a 0%, #121212 40%, #0a0a0a 75%, #000000 100%);
   overflow: auto;
   color: var(--text-primary);
   position: relative;
 }
 
-/* ==================== GRAIN TEXTURE ==================== */
 body::before {
   content: '';
   position: fixed;
@@ -40,67 +49,25 @@ body::before {
   animation: grain 8s steps(10) infinite;
 }
 
-/* ==================== SHARED KEYFRAMES ==================== */
-/* * FIX: gradient-shift estava duplicado em toolbar.css e pdfviewer.css. * Centralizado aqui. Remova de ambos os arquivos. */
 @keyframes grain {
-
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-
-  10% {
-    transform: translate(-5%, -10%);
-  }
-
-  20% {
-    transform: translate(-15%, 5%);
-  }
-
-  30% {
-    transform: translate(7%, -25%);
-  }
-
-  40% {
-    transform: translate(-5%, 25%);
-  }
-
-  50% {
-    transform: translate(-15%, 10%);
-  }
-
-  60% {
-    transform: translate(15%, 0%);
-  }
-
-  70% {
-    transform: translate(0%, 15%);
-  }
-
-  80% {
-    transform: translate(3%, 35%);
-  }
-
-  90% {
-    transform: translate(-10%, 10%);
-  }
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(-15%, 5%); }
+  30% { transform: translate(7%, -25%); }
+  40% { transform: translate(-5%, 25%); }
+  50% { transform: translate(-15%, 10%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 15%); }
+  80% { transform: translate(3%, 35%); }
+  90% { transform: translate(-10%, 10%); }
 }
 
 @keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* ==================== CODE ==================== */
 code {
   font-family: var(--font-mono);
   background: rgba(228, 0, 43, 0.08);
@@ -109,7 +76,6 @@ code {
   font-size: 0.9em;
 }
 
-/* ==================== SCROLLBAR ==================== */
 ::-webkit-scrollbar {
   width: 14px;
   height: 14px;
@@ -136,7 +102,6 @@ code {
   background: #0a0a0a;
 }
 
-/* ==================== SELECTION ==================== */
 ::selection {
   background: rgba(228, 0, 43, 0.4);
   color: #ffffff;
@@ -149,96 +114,64 @@ code {
   text-shadow: 0 0 8px rgba(228, 0, 43, 0.5);
 }
 
-/* ==================== UTILITY CLASSES ==================== */
-.sans {
-  font-family: var(--font-display);
-}
-
-.mono {
-  font-family: var(--font-mono);
-}
+.sans { font-family: var(--font-display); }
+.mono { font-family: var(--font-mono); }
 
 .password-dialog-overlay {
   position: fixed;
   inset: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: rgba(0, 0, 0, 0.78);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-
   z-index: 99999;
-
   animation: fadeIn 0.2s ease-out;
 }
 
 .password-dialog {
   width: 420px;
-
-  background:
-    linear-gradient(180deg,
-      rgba(30, 30, 30, 0.96),
-      rgba(15, 15, 15, 0.98));
-
+  background: linear-gradient(180deg, rgba(30, 30, 30, 0.96), rgba(15, 15, 15, 0.98));
   border: 1px solid rgba(228, 0, 43, 0.18);
-
   border-radius: 16px;
-
   padding: 28px;
-
   display: flex;
   flex-direction: column;
   gap: 18px;
-
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.03),
     0 12px 40px rgba(0, 0, 0, 0.55),
     0 0 30px rgba(228, 0, 43, 0.12);
-
   animation: modalEnter 0.2s ease-out;
 }
 
 .password-dialog__title {
   font-family: var(--font-display);
-
   font-size: 1.15rem;
   font-weight: 600;
-
   color: #ffffff;
-
   letter-spacing: 0.02em;
 }
 
 .password-dialog__message {
   color: rgba(255, 255, 255, 0.65);
-
   line-height: 1.5;
-
   font-size: 0.9rem;
 }
 
 .password-dialog__input {
   width: 100%;
-
   padding: 12px 14px;
-
   background: rgba(255, 255, 255, 0.03);
-
   border: 1px solid rgba(255, 255, 255, 0.08);
-
   border-radius: 10px;
-
   color: #fff;
-
   transition: all 0.2s ease;
 }
 
 .password-dialog__input:focus {
   border-color: rgba(228, 0, 43, 0.7);
-
   box-shadow:
     0 0 0 3px rgba(228, 0, 43, 0.12),
     0 0 15px rgba(228, 0, 43, 0.2);
@@ -269,31 +202,19 @@ code {
 }
 
 .password-dialog__btn--confirm {
-  background:
-    linear-gradient(180deg,
-      rgba(228, 0, 43, 1),
-      rgba(180, 0, 35, 1));
-
+  background: linear-gradient(180deg, rgba(228, 0, 43, 1), rgba(180, 0, 35, 1));
   color: white;
-
   font-weight: 600;
 }
 
 .password-dialog__btn--confirm:hover {
   transform: translateY(-1px);
-
-  box-shadow:
-    0 0 20px rgba(228, 0, 43, 0.3);
+  box-shadow: 0 0 20px rgba(228, 0, 43, 0.3);
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes modalEnter {
@@ -301,7 +222,6 @@ code {
     opacity: 0;
     transform: translateY(12px) scale(0.98);
   }
-
   to {
     opacity: 1;
     transform: translateY(0) scale(1);

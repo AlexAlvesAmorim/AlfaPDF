@@ -9,7 +9,6 @@ export interface ToastData {
   id: string
   message: string
   type: ToastType
-  /** Duração em ms antes de fechar automaticamente. Padrão: 4000 */
   duration?: number
 }
 

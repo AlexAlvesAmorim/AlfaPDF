@@ -12,7 +12,7 @@ export function usePdfTabs() {
             id: crypto.randomUUID(),
             name,
             data,
-            url,               // 👈
+            url,
             zoom: 1.0,
             scrollTop: 0,
             currentPage: 1,
