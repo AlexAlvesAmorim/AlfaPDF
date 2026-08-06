@@ -50,10 +50,10 @@
     "vite-plugin-electron-renderer": "^0.14.6",
     "vitest": "^4.1.10"
   },
-    "build": {
-      "appId": "com.alex.pdfreader",
-      "productName": "ALFA PDF Reader",
-      "asar": false,
+  "build": {
+    "appId": "com.alex.pdfreader",
+    "productName": "ALFA PDF Reader",
+    "asar": false,
     "directories": {
       "output": "release"
     },

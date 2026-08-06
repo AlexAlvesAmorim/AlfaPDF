@@ -1,14 +1,17 @@
 {
   "appId": "com.alfa.pdfreader",
-  "asar": true,
-  "productName": "AlfaPDF",
+  "productName": "ALFA PDF Reader",
+  "copyright": "Copyright © 2026 Alex Alves Amorim. Todos os direitos reservados.",
+  "asar": false,
 
   "directories": {
-    "output": "release/${version}"
+    "output": "release"
   },
 
   "files": [
-    "out/**/*"
+    "out/**/*",
+    "node_modules/**/*",
+    "package.json"
   ],
 
   "win": {
@@ -18,16 +21,53 @@
         "arch": ["x64"]
       }
     ],
-    "icon": "build/icon.ico",
-    "artifactName": "${productName}-Windows-${version}-Setup.${ext}"
+    "icon": "src/renderer/assets/logo512.ico",
+    "artifactName": "${productName} Setup ${version}.exe",
+    "fileAssociations": [
+      {
+        "ext": "pdf",
+        "name": "ALFA PDF Document",
+        "description": "Documento PDF - ALFA PDF Reader Pro",
+        "role": "Viewer",
+        "icon": "src/renderer/assets/logo512.ico"
+      }
+    ]
   },
 
   "nsis": {
     "oneClick": false,
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
-    "deleteAppDataOnUninstall": false,
-    "installerIcon": "build/icon.ico",
-    "uninstallerIcon": "build/icon.ico"
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "runAfterFinish": true,
+    "shortcutName": "ALFA PDF Reader Pro v10",
+    "installerIcon": "src/renderer/assets/logo512.ico",
+    "uninstallerIcon": "src/renderer/assets/logo512.ico",
+    "installerHeaderIcon": "src/renderer/assets/logo512.ico",
+    "installerHeader": "build/installer-header.bmp",
+    "installerSidebar": "build/installer-sidebar.bmp",
+    "deleteAppDataOnUninstall": true,
+    "displayLanguageSelector": true,
+    "multiLanguageInstaller": true,
+    "warningsAsErrors": true,
+    "license": "LICENSE.md",
+    "menuCategory": "Produtividade",
+
+    "multiSession": true,
+    "displayInstallProgress": true,
+    "displayUninstallProgress": true,
+
+    "welcomePage": {
+      "title": "Bem-vindo ao ALFA PDF Reader Pro v10",
+      "subtitle": "Visualizador PDF profissional, rápido e elegante",
+      "description": "Leitura contínua • Múltiplas abas • Impressão profissional • Suporte a senhas • Zoom inteligente"
+    },
+
+    "finishPage": {
+      "title": "ALFA PDF Reader Pro v10 instalado com sucesso!",
+      "subtitle": "Clique em Concluir para começar a usar o ALFA PDF Reader Pro v10",
+      "runButton": "Iniciar ALFA PDF Reader Pro v10"
+    }
   }
 }
