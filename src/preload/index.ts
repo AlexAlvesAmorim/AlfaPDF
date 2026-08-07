@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     readPdfFile: (filePath: string) => ipcRenderer.invoke('read-pdf-file', filePath),
     getPrinters: () => ipcRenderer.invoke('get-printers'),
     printSilent: (options: unknown) => ipcRenderer.invoke('print-silent', options),
+    printNative: (options: unknown) => ipcRenderer.invoke('print-native', options),
     saveAsPdf: (options: unknown) => ipcRenderer.invoke('save-as-pdf', options),
 
     getAppVersion: () => ipcRenderer.invoke('get-app-version'),

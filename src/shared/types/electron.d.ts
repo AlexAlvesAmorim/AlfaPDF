@@ -18,6 +18,9 @@ declare global {
       printSilent: (
         options: PrintOptions & { file: Uint8Array }
       ) => Promise<boolean>
+      printNative: (
+        options: PrintOptions & { file: Uint8Array }
+      ) => Promise<{ success: boolean; error?: string | null }>
       saveAsPdf: (
         options: PrintOptions & { file: Uint8Array }
       ) => Promise<SavePdfResult>

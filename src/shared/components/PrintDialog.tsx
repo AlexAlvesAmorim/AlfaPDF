@@ -2,16 +2,17 @@ import { useEffect, useState } from 'react'
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Select, MenuItem, FormControl, InputLabel,
-  TextField, Checkbox, FormControlLabel, RadioGroup,
-  Radio, FormLabel, CircularProgress, Alert, Box,
-  ThemeProvider, createTheme, Typography,
+  TextField, FormLabel, CircularProgress, Alert, Box,
+  ThemeProvider, createTheme, Typography, Divider, Chip,
 } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import PrintIcon from '@mui/icons-material/Print'
+import DescriptionIcon from '@mui/icons-material/Description'
+import PaletteIcon from '@mui/icons-material/Palette'
+import LayersIcon from '@mui/icons-material/Layers'
 import type { PrintOptions, PrintQuality } from '../types'
 
 interface Printer { name: string; isDefault?: boolean }
-export type DuplexMode = 'simplex' | 'longEdge' | 'shortEdge'
 
 interface PrintDialogProps {
   open: boolean;
@@ -20,6 +21,7 @@ interface PrintDialogProps {
   onSaveAsPdf: (options: PrintOptions) => void;
   currentPage: number;
   totalPages: number;
+  fileName?: string;
 }
 
 const darkTheme = createTheme({
@@ -31,14 +33,14 @@ const darkTheme = createTheme({
     divider: 'rgba(255, 255, 255, 0.08)',
     error: { main: '#ff4444' },
   },
-  shape: { borderRadius: 8 },
+  shape: { borderRadius: 10 },
   components: {
     MuiDialog: {
       styleOverrides: {
         paper: {
-          border: '1px solid rgba(228, 0, 43, 0.2)',
-          boxShadow: '0 24px 72px rgba(0,0,0,0.8), 0 0 40px rgba(228,0,43,0.1)',
-          backgroundImage: 'linear-gradient(180deg, #1e1e1e 0%, #161616 100%)',
+          border: '1px solid rgba(228, 0, 43, 0.18)',
+          boxShadow: '0 24px 72px rgba(0,0,0,0.8), 0 0 40px rgba(228,0,43,0.08)',
+          backgroundImage: 'linear-gradient(180deg, #1e1e1e 0%, #141414 100%)',
         },
       },
     },
@@ -48,15 +50,14 @@ const darkTheme = createTheme({
           fontFamily: "'Space Grotesk', sans-serif",
           fontWeight: 600,
           letterSpacing: '0.5px',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
           fontSize: '1.15rem',
-          padding: '20px 24px',
+          padding: '20px 24px 16px',
         },
       },
     },
     MuiDialogContent: {
       styleOverrides: {
-        root: { padding: '24px' },
+        root: { padding: '8px 24px 20px' },
       },
     },
     MuiButton: {
@@ -67,7 +68,7 @@ const darkTheme = createTheme({
           letterSpacing: '0.05em',
           textTransform: 'uppercase',
           borderRadius: 8,
-          padding: '8px 20px',
+          padding: '8px 18px',
         },
         containedPrimary: {
           background: 'linear-gradient(135deg, #b20022 0%, #e4002b 100%)',
@@ -91,12 +92,62 @@ const darkTheme = createTheme({
   },
 });
 
-export default function PrintDialog({ open, onClose, onPrint, onSaveAsPdf, currentPage, totalPages }: PrintDialogProps) {
+interface SectionProps {
+  icon: React.ReactNode
+  title: string
+  children: React.ReactNode
+}
+
+function Section({ icon, title, children }: SectionProps) {
+  return (
+    <Box
+      sx={{
+        p: 2,
+        borderRadius: '10px',
+        bgcolor: 'rgba(255,255,255,0.025)',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 28,
+            height: 28,
+            borderRadius: '8px',
+            bgcolor: 'rgba(228,0,43,0.12)',
+            color: '#e4002b',
+          }}
+        >
+          {icon}
+        </Box>
+        <Typography
+          sx={{
+            fontFamily: '"Space Grotesk", sans-serif',
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            color: 'rgba(255,255,255,0.55)',
+            textTransform: 'uppercase',
+          }}
+        >
+          {title}
+        </Typography>
+      </Box>
+      {children}
+    </Box>
+  )
+}
+
+export default function PrintDialog({
+  open, onClose, onPrint, onSaveAsPdf, currentPage, totalPages, fileName,
+}: PrintDialogProps) {
   const [printers, setPrinters] = useState<Printer[]>([])
   const [selectedPrinter, setSelectedPrinter] = useState('')
   const [copies, setCopies] = useState(1)
-  const [color, setColor] = useState(false)
-  const [duplex, setDuplex] = useState<DuplexMode>('simplex')
+  const [color, setColor] = useState(true)
   const [pageRange, setPageRange] = useState<'all' | 'current' | 'custom'>('all')
   const [customPages, setCustomPages] = useState('')
   const [printQuality, setPrintQuality] = useState<PrintQuality>('normal')
@@ -104,179 +155,328 @@ export default function PrintDialog({ open, onClose, onPrint, onSaveAsPdf, curre
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!open || !window.electronAPI?.getPrinters) return;
-    let mounted = true;
-    setLoading(true);
-    setError(null);
+    if (!open || !window.electronAPI?.getPrinters) return
+    let mounted = true
+    setLoading(true)
+    setError(null)
     window.electronAPI.getPrinters()
       .then((list: Printer[]) => {
-        if (!mounted) return;
+        if (!mounted) return
         if (list.length) {
-          setPrinters(list);
-          const def = list.find((p) => p.isDefault);
-          setSelectedPrinter(def?.name ?? list[0].name);
+          setPrinters(list)
+          const def = list.find((p) => p.isDefault)
+          setSelectedPrinter(def?.name ?? list[0].name)
         } else {
-          setError('Nenhuma impressora encontrada.');
+          setError('Nenhuma impressora encontrada no sistema.')
         }
       })
       .catch(() => { if (mounted) setError('Erro ao carregar lista de impressoras.') })
-      .finally(() => { if (mounted) setLoading(false) });
-    return () => { mounted = false };
-  }, [open]);
+      .finally(() => { if (mounted) setLoading(false) })
+    return () => { mounted = false }
+  }, [open])
 
   const buildOptions = (): PrintOptions => ({
     printerName: selectedPrinter,
     copies,
     color,
-    duplex,
+    duplex: 'simplex',
     silent: true,
     printBackground: false,
     pageRange,
     currentPage,
     customPages: pageRange === 'custom' ? customPages : undefined,
     printQuality,
-  });
+  })
 
   const handlePrint = () => {
-    if (!selectedPrinter) { setError('Selecione uma impressora.'); return; }
-    setLoading(true);
-    onPrint(buildOptions());
-    setTimeout(() => { setLoading(false); onClose(); }, 800);
-  };
+    if (!selectedPrinter) { setError('Selecione uma impressora.'); return }
+    setLoading(true)
+    onPrint(buildOptions())
+    setTimeout(() => { setLoading(false); onClose() }, 800)
+  }
 
   const handleSaveAsPdf = () => {
-    onSaveAsPdf(buildOptions());
-    onClose();
-  };
+    onSaveAsPdf(buildOptions())
+    onClose()
+  }
+
+  const pageRangeLabel = pageRange === 'all'
+    ? `Todas (${totalPages})`
+    : pageRange === 'current'
+      ? `Página ${currentPage}`
+      : customPages.trim() || 'Personalizado'
+
+  const qualityOptions: Array<{ value: PrintQuality; label: string; hint: string }> = [
+    { value: 'draft', label: 'Rascunho', hint: 'Econômico' },
+    { value: 'normal', label: 'Padrão', hint: 'Equilibrado' },
+    { value: 'high', label: 'Alta', hint: 'Qualidade máxima' },
+  ]
 
   return (
     <ThemeProvider theme={darkTheme}>
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <PrintIcon sx={{ color: '#e4002b', fontSize: 22 }} />
-          Impressão
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <PrintIcon sx={{ color: '#e4002b', fontSize: 22 }} />
+            <Box sx={{ flex: 1 }}>
+              <Box>Imprimir documento</Box>
+              {fileName && (
+                <Typography
+                  sx={{
+                    fontSize: '0.72rem',
+                    fontWeight: 400,
+                    color: 'rgba(255,255,255,0.45)',
+                    fontFamily: '"JetBrains Mono", monospace',
+                    mt: 0.25,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    letterSpacing: 0,
+                    textTransform: 'none',
+                  }}
+                >
+                  {fileName}
+                </Typography>
+              )}
+            </Box>
+            <Chip
+              size="small"
+              label={`${totalPages} ${totalPages === 1 ? 'página' : 'páginas'}`}
+              sx={{
+                bgcolor: 'rgba(228,0,43,0.12)',
+                color: '#ff6b80',
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                height: 22,
+              }}
+            />
+          </Box>
         </DialogTitle>
-        <DialogContent dividers>
-          {loading && (
+
+        <DialogContent dividers sx={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+          {loading && !printers.length ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
               <CircularProgress color="primary" />
             </Box>
-          )}
-          {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
-          {!loading && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="printer-label">Impressora</InputLabel>
-                <Select labelId="printer-label" value={selectedPrinter} label="Impressora"
-                  onChange={(e) => setSelectedPrinter(e.target.value)} disabled={!printers.length}>
-                  {printers.map((p) => (
-                    <MenuItem key={p.name} value={p.name}>{p.name}{p.isDefault && ' (padrão)'}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+              {error && <Alert severity="error">{error}</Alert>}
 
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <TextField label="Cópias" type="number" size="small" sx={{ flex: 1 }} value={copies}
-                  onChange={(e) => setCopies(Math.max(1, Number(e.target.value)))}
-                  slotProps={{ htmlInput: { min: 1, max: 99 } }} />
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                  <FormControlLabel
-                    control={<Checkbox checked={color} onChange={(e) => setColor(e.target.checked)} color="primary" size="small" />}
-                    label="Colorida" />
-                </Box>
-              </Box>
+              <Section icon={<DescriptionIcon sx={{ fontSize: 16 }} />} title="Documento">
+                <FormControl fullWidth size="small">
+                  <InputLabel id="printer-label">Impressora</InputLabel>
+                  <Select
+                    labelId="printer-label"
+                    value={selectedPrinter}
+                    label="Impressora"
+                    onChange={(e) => setSelectedPrinter(e.target.value)}
+                    disabled={!printers.length}
+                  >
+                    {printers.map((p) => (
+                      <MenuItem key={p.name} value={p.name}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                          <PrintIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
+                          <span style={{ flex: 1 }}>{p.name}</span>
+                          {p.isDefault && (
+                            <Chip
+                              size="small"
+                              label="padrão"
+                              sx={{
+                                height: 18,
+                                fontSize: '0.65rem',
+                                bgcolor: 'rgba(228,0,43,0.15)',
+                                color: '#ff6b80',
+                              }}
+                            />
+                          )}
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Section>
 
-              <Box>
-                <FormLabel sx={{ display: 'block', mb: 0.5 }}>Qualidade de impressão</FormLabel>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  {([
-                    ['draft', 'Rascunho', 'Menor consumo de tinta', '#607d8b'],
-                    ['normal', 'Padrão', 'Equilíbrio entre qualidade e performance', '#e4002b'],
-                    ['high', 'Alta', 'Qualidade máxima para documentos importantes', '#ff6b00'],
-                  ] as [PrintQuality, string, string, string][]).map(([quality, label, hint, accent]) => (
-                    <Box
-                      key={quality}
-                      onClick={() => setPrintQuality(quality)}
-                      sx={{
-                        flex: 1,
-                        cursor: 'pointer',
-                        position: 'relative',
-                        padding: '12px 10px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        borderRadius: '10px',
-                        border: '1px solid',
-                        borderColor: printQuality === quality ? accent : 'rgba(255,255,255,0.08)',
-                        bgcolor: printQuality === quality ? `${accent}12` : 'rgba(255,255,255,0.02)',
-                        transition: 'all 0.2s ease',
-                        '&:hover': {
-                          borderColor: printQuality === quality ? accent : 'rgba(255,255,255,0.18)',
-                          bgcolor: printQuality === quality ? `${accent}18` : 'rgba(255,255,255,0.05)',
-                        },
-                      }}
+              <Section icon={<LayersIcon sx={{ fontSize: 16 }} />} title="Configurações">
+                <Box sx={{ display: 'flex', gap: 1.5 }}>
+                  <TextField
+                    label="Cópias"
+                    type="number"
+                    size="small"
+                    value={copies}
+                    onChange={(e) => setCopies(Math.max(1, Math.min(99, Number(e.target.value) || 1)))}
+                    slotProps={{ htmlInput: { min: 1, max: 99 } }}
+                    sx={{
+                      width: 110,
+                      '& input': { fontFamily: '"JetBrains Mono", monospace', textAlign: 'center' },
+                    }}
+                  />
+                  <FormControl size="small" sx={{ flex: 1 }}>
+                    <InputLabel id="pages-label">Páginas</InputLabel>
+                    <Select
+                      labelId="pages-label"
+                      value={pageRange}
+                      label="Páginas"
+                      onChange={(e) => setPageRange(e.target.value as 'all' | 'current' | 'custom')}
                     >
-                      <Typography
-                        sx={{
-                          fontSize: '0.8rem',
-                          fontWeight: 600,
-                          letterSpacing: '0.03em',
-                          fontFamily: '"Space Grotesk", sans-serif',
-                          color: printQuality === quality ? accent : 'rgba(255,255,255,0.7)',
-                        }}
-                        >
-                        {label}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontSize: '0.65rem',
-                          color: 'rgba(255,255,255,0.38)',
-                          textAlign: 'center',
-                          lineHeight: 1.3,
-                          fontFamily: '"JetBrains Mono", monospace',
-                        }}
-                        >
-                        {hint}
-                      </Typography>
-                    </Box>
-                  ))}
+                      <MenuItem value="all">Todas ({totalPages})</MenuItem>
+                      <MenuItem value="current">Página atual ({currentPage})</MenuItem>
+                      <MenuItem value="custom">Personalizado...</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Box>
+                {pageRange === 'custom' && (
+                  <TextField
+                    label="Intervalo"
+                    placeholder="Ex: 1-3, 5, 7-9"
+                    fullWidth
+                    size="small"
+                    value={customPages}
+                    onChange={(e) => setCustomPages(e.target.value)}
+                    helperText={`Total: ${totalPages} páginas`}
+                    sx={{ mt: 1.5 }}
+                  />
+                )}
+              </Section>
+
+              <Section icon={<PaletteIcon sx={{ fontSize: 16 }} />} title="Aparência">
+                <Box sx={{ display: 'flex', gap: 1.5, mb: 1.5 }}>
+                  <Box
+                    onClick={() => setColor(true)}
+                    sx={{
+                      flex: 1,
+                      cursor: 'pointer',
+                      p: 1.5,
+                      borderRadius: '8px',
+                      border: '1px solid',
+                      borderColor: color ? '#e4002b' : 'rgba(255,255,255,0.08)',
+                      bgcolor: color ? 'rgba(228,0,43,0.08)' : 'rgba(255,255,255,0.02)',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      '&:hover': { borderColor: color ? '#e4002b' : 'rgba(255,255,255,0.18)' },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: '4px',
+                        background: 'linear-gradient(135deg, #ff2d55 0%, #e4002b 50%, #1976d2 100%)',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 600 }}>Colorida</Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    onClick={() => setColor(false)}
+                    sx={{
+                      flex: 1,
+                      cursor: 'pointer',
+                      p: 1.5,
+                      borderRadius: '8px',
+                      border: '1px solid',
+                      borderColor: !color ? '#e4002b' : 'rgba(255,255,255,0.08)',
+                      bgcolor: !color ? 'rgba(228,0,43,0.08)' : 'rgba(255,255,255,0.02)',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      '&:hover': { borderColor: !color ? '#e4002b' : 'rgba(255,255,255,0.18)' },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: '4px',
+                        background: '#ffffff',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 600 }}>Preto e branco</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+
+                <FormLabel sx={{ display: 'block', fontSize: '0.75rem', color: 'rgba(255,255,255,0.55)', mb: 0.75, fontFamily: '"Space Grotesk", sans-serif', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  Qualidade
+                </FormLabel>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  {qualityOptions.map(({ value, label, hint }) => {
+                    const active = printQuality === value
+                    return (
+                      <Box
+                        key={value}
+                        onClick={() => setPrintQuality(value)}
+                        sx={{
+                          flex: 1,
+                          cursor: 'pointer',
+                          p: 1.25,
+                          borderRadius: '8px',
+                          border: '1px solid',
+                          borderColor: active ? '#e4002b' : 'rgba(255,255,255,0.08)',
+                          bgcolor: active ? 'rgba(228,0,43,0.08)' : 'rgba(255,255,255,0.02)',
+                          transition: 'all 0.2s ease',
+                          textAlign: 'center',
+                          '&:hover': { borderColor: active ? '#e4002b' : 'rgba(255,255,255,0.18)' },
+                        }}
+                      >
+                        <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: active ? '#ff6b80' : 'rgba(255,255,255,0.85)' }}>
+                          {label}
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontFamily: '"JetBrains Mono", monospace', mt: 0.25 }}>
+                          {hint}
+                        </Typography>
+                      </Box>
+                    )
+                  })}
+                </Box>
+              </Section>
+
+              <Box
+                sx={{
+                  p: 1.5,
+                  borderRadius: '8px',
+                  bgcolor: 'rgba(0,0,0,0.3)',
+                  border: '1px solid rgba(255,255,255,0.04)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  fontFamily: '"JetBrains Mono", monospace',
+                  fontSize: '0.72rem',
+                  color: 'rgba(255,255,255,0.5)',
+                }}
+              >
+                <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#e4002b', boxShadow: '0 0 8px #e4002b' }} />
+                <span style={{ color: 'rgba(255,255,255,0.7)' }}>{pageRangeLabel}</span>
+                <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.08)' }} />
+                <span>{copies} {copies === 1 ? 'cópia' : 'cópias'}</span>
+                <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.08)' }} />
+                <span>{color ? 'Cor' : 'P&B'}</span>
               </Box>
-
-              <FormControl>
-                <FormLabel sx={{ fontSize: '0.85rem' }}>Frente e verso</FormLabel>
-                <RadioGroup row value={duplex} onChange={(e) => setDuplex(e.target.value as DuplexMode)}>
-                  <FormControlLabel value="simplex" control={<Radio color="primary" size="small" />} label="Frente" />
-                  <FormControlLabel value="longEdge" control={<Radio color="primary" size="small" />} label="Borda longa" />
-                  <FormControlLabel value="shortEdge" control={<Radio color="primary" size="small" />} label="Borda curta" />
-                </RadioGroup>
-              </FormControl>
-
-              <FormControl>
-                <FormLabel sx={{ fontSize: '0.85rem' }}>Páginas</FormLabel>
-                <RadioGroup row value={pageRange} onChange={(e) => setPageRange(e.target.value as 'all' | 'current' | 'custom')}>
-                  <FormControlLabel value="all" control={<Radio color="primary" size="small" />} label="Todas" />
-                  <FormControlLabel value="current" control={<Radio color="primary" size="small" />} label={`Pág. ${currentPage}`} />
-                  <FormControlLabel value="custom" control={<Radio color="primary" size="small" />} label="Personalizado" />
-                </RadioGroup>
-              </FormControl>
-              {pageRange === 'custom' && (
-                <TextField label="Ex: 1-3, 5, 7-9" fullWidth size="small" value={customPages}
-                  onChange={(e) => setCustomPages(e.target.value)}
-                  helperText={`Total: ${totalPages} páginas`} />
-              )}
             </Box>
           )}
         </DialogContent>
+
         <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
           <Button onClick={onClose} disabled={loading} color="inherit">Cancelar</Button>
           <Box sx={{ flex: 1 }} />
           <Button variant="outlined" onClick={handleSaveAsPdf} disabled={loading} startIcon={<SaveIcon />}>
             Salvar PDF
           </Button>
-          <Button variant="contained" color="primary" onClick={handlePrint} disabled={loading || !selectedPrinter}
-            startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <PrintIcon />}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handlePrint}
+            disabled={loading || !selectedPrinter}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <PrintIcon />}
+          >
             {loading ? 'Enviando...' : 'Imprimir'}
           </Button>
         </DialogActions>

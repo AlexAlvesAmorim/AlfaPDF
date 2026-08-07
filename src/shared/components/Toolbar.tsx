@@ -3,6 +3,7 @@ import ZoomInIcon from "@mui/icons-material/ZoomIn"
 import ZoomOutIcon from "@mui/icons-material/ZoomOut"
 import RestartAltIcon from "@mui/icons-material/RestartAlt"
 import PrintIcon from "@mui/icons-material/Print"
+import TuneIcon from "@mui/icons-material/Tune"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
@@ -22,6 +23,7 @@ type ToolbarProps = {
   onZoomOut(): void
   onResetZoom(): void
   onPrint(): void
+  onPrintAdvanced(): void
   onOpenPdf(): void
 }
 
@@ -37,6 +39,7 @@ export function Toolbar({
   onZoomOut,
   onResetZoom,
   onPrint,
+  onPrintAdvanced,
   onOpenPdf,
 }: ToolbarProps) {
   return (
@@ -124,6 +127,16 @@ export function Toolbar({
           title="Imprimir (Ctrl+P)"
         >
           <PrintIcon sx={{ fontSize: 20 }} />
+        </button>
+        <button
+          type="button"
+          onClick={onPrintAdvanced}
+          disabled={totalPages === 0}
+          className="pdf-control-btn pdf-print-advanced"
+          aria-label="Impressão avançada (diálogo do Windows)"
+          title="Impressão avançada — diálogo do Windows"
+        >
+          <TuneIcon sx={{ fontSize: 20 }} />
         </button>
         <div className="pdf-file-controls">
           <button

@@ -1,7 +1,7 @@
 export type PrintQuality = 'draft' | 'normal' | 'high'
 
 export interface PrintOptions {
-  printerName: string
+  printerName?: string
   copies: number
   color: boolean
   duplex: 'simplex' | 'longEdge' | 'shortEdge'

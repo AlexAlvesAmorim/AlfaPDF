@@ -67,119 +67,25 @@ function parsePageRanges(input: string, totalPages: number): number[] {
   return Array.from(pages).sort((a, b) => a - b)
 }
 
-async function buildFilteredPdf(
+async function openPdfInPrintWindow(
   options: PrintOptions & { file: Uint8Array; password?: string }
-): Promise<Uint8Array> {
-  const originalBuffer = Buffer.from(options.file)
-  console.log('[PRINT] password:', options.password)
+): Promise<BrowserWindow | null> {
+  const tmpHtmlPath = path.join(app.getPath('temp'), `alfa-print-${Date.now()}.html`)
+  let printWin: BrowserWindow | null = null
 
-  const pdfDoc = await PDFDocument.load(originalBuffer, {
-    ignoreEncryption: true,
-  })
+  try {
+    const pdfBase64 = Buffer.from(options.file).toString('base64')
+    const qualityScale = options.printQuality === 'draft' ? 1.0
+      : options.printQuality === 'high' ? 3.0
+      : 2.0
 
-  const totalPages = pdfDoc.getPageCount()
+    const pageRangeConfig = JSON.stringify({
+      pageRange: options.pageRange,
+      currentPage: options.currentPage,
+      customPages: options.customPages,
+    })
 
-  let pagesToInclude: number[]
-
-  if (options.pageRange === 'current') {
-    pagesToInclude = [options.currentPage ?? 1]
-  } else if (options.pageRange === 'custom' && options.customPages) {
-    pagesToInclude = parsePageRanges(options.customPages, totalPages)
-  } else {
-    pagesToInclude = Array.from({ length: totalPages }, (_, i) => i + 1)
-  }
-
-  const newDoc = await PDFDocument.create()
-  const copiedPages = await newDoc.copyPages(pdfDoc, pagesToInclude.map(p => p - 1))
-  copiedPages.forEach(page => newDoc.addPage(page))
-
-  return newDoc.save()
-}
-
-function createWindow(): void {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    show: false,
-    autoHideMenuBar: true,
-    webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: false,
-    },
-  })
-
-  mainWindow.once('ready-to-show', () => {
-    mainWindow?.show()
-    if (pendingPdfPath) {
-      sendPdfToRenderer(pendingPdfPath)
-      pendingPdfPath = null
-    }
-  })
-
-  if (app.isPackaged) {
-    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
-  } else if (process.env.ELECTRON_RENDERER_URL) {
-    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
-  } else {
-    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
-  }
-}
-
-ipcMain.handle('open-pdf-dialog', async () => {
-  const result = await dialog.showOpenDialog({
-    properties: ['openFile'],
-    filters: [{ name: 'PDF', extensions: ['pdf'] }],
-  })
-  return result.filePaths
-})
-
-ipcMain.handle('read-pdf-file', async (_event, filePath: string) => {
-  const buffer = fs.readFileSync(filePath)
-  return buffer.toString('base64')
-})
-
-ipcMain.handle('get-printers', async () => {
-  console.log('[PRINTERS] Handler chamado')
-
-  if (!mainWindow) {
-    console.log('[PRINTERS] mainWindow null')
-    return []
-  }
-
-  const printers = await mainWindow.webContents.getPrintersAsync()
-  console.log('[PRINTERS] Encontradas:', printers.length)
-
-  return printers.map(p => ({
-    name: p.name,
-    isDefault: p.isDefault,
-  }))
-})
-
-ipcMain.handle(
-  'print-silent',
-  async (_event, options: PrintOptions & { file: Uint8Array; password?: string }) => {
-    const tmpHtmlPath = path.join(app.getPath('temp'), `alfa-print-${Date.now()}.html`)
-    let printWin: BrowserWindow | null = null
-
-    try {
-      const printerName = options.printerName
-      if (!printerName) throw new Error('Nenhuma impressora selecionada.')
-
-      const pdfBase64 = Buffer.from(options.file).toString('base64')
-
-      const qualityScale = options.printQuality === 'draft' ? 1.0
-        : options.printQuality === 'high' ? 3.0
-        : 2.0
-
-      const pageRangeConfig = JSON.stringify({
-        pageRange: options.pageRange,
-        currentPage: options.currentPage,
-        customPages: options.customPages,
-      })
-
-      const htmlContent = `<!DOCTYPE html>
+    const htmlContent = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -264,60 +170,154 @@ ipcMain.handle(
 
       ipcRenderer.send('pdf-render-complete');
     }).catch((err) => {
-      console.error('Erro ao renderizar PDF para impressão:', err);
       ipcRenderer.send('pdf-render-complete');
     });
   </script>
 </body>
 </html>`
 
-      fs.writeFileSync(tmpHtmlPath, htmlContent, 'utf-8')
+    fs.writeFileSync(tmpHtmlPath, htmlContent, 'utf-8')
 
-      printWin = new BrowserWindow({
-        show: false,
-        webPreferences: {
-          sandbox: false,
-          contextIsolation: false,
-          nodeIntegration: true,
-          webSecurity: false,
-        },
-      })
+    printWin = new BrowserWindow({
+      show: false,
+      webPreferences: {
+        sandbox: false,
+        contextIsolation: false,
+        nodeIntegration: true,
+        webSecurity: false,
+      },
+    })
 
-      await printWin.loadFile(tmpHtmlPath)
+    await printWin.loadFile(tmpHtmlPath)
 
-      await new Promise<void>((resolve) => {
-        ipcMain.once('pdf-render-complete', () => {
-          console.log('[PRINT] PDF.js renderização concluída')
-          resolve()
-        })
-        setTimeout(resolve, 15000)
-      })
+    await new Promise<void>((resolve) => {
+      ipcMain.once('pdf-render-complete', () => resolve())
+      setTimeout(resolve, 15000)
+    })
 
+    return printWin
+  } catch {
+    if (printWin && !printWin.isDestroyed()) printWin.close()
+    return null
+  } finally {
+    setTimeout(() => {
+      try { fs.unlinkSync(tmpHtmlPath) } catch { void 0 }
+    }, 5000)
+  }
+}
+
+async function buildFilteredPdf(
+  options: PrintOptions & { file: Uint8Array; password?: string }
+): Promise<Uint8Array> {
+  const originalBuffer = Buffer.from(options.file)
+
+  const pdfDoc = await PDFDocument.load(originalBuffer, {
+    ignoreEncryption: true,
+  })
+
+  const totalPages = pdfDoc.getPageCount()
+
+  let pagesToInclude: number[]
+
+  if (options.pageRange === 'current') {
+    pagesToInclude = [options.currentPage ?? 1]
+  } else if (options.pageRange === 'custom' && options.customPages) {
+    pagesToInclude = parsePageRanges(options.customPages, totalPages)
+  } else {
+    pagesToInclude = Array.from({ length: totalPages }, (_, i) => i + 1)
+  }
+
+  const newDoc = await PDFDocument.create()
+  const copiedPages = await newDoc.copyPages(pdfDoc, pagesToInclude.map(p => p - 1))
+  copiedPages.forEach(page => newDoc.addPage(page))
+
+  return newDoc.save()
+}
+
+function createWindow(): void {
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    show: false,
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: path.join(__dirname, '../preload/index.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+    },
+  })
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow?.show()
+    if (pendingPdfPath) {
+      sendPdfToRenderer(pendingPdfPath)
+      pendingPdfPath = null
+    }
+  })
+
+  if (app.isPackaged) {
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
+  } else if (process.env.ELECTRON_RENDERER_URL) {
+    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
+  }
+}
+
+ipcMain.handle('open-pdf-dialog', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+  })
+  return result.filePaths
+})
+
+ipcMain.handle('read-pdf-file', async (_event, filePath: string) => {
+  const buffer = fs.readFileSync(filePath)
+  return buffer.toString('base64')
+})
+
+ipcMain.handle('get-printers', async () => {
+  if (!mainWindow) {
+    return []
+  }
+
+  const printers = await mainWindow.webContents.getPrintersAsync()
+
+  return printers.map(p => ({
+    name: p.name,
+    isDefault: p.isDefault,
+  }))
+})
+
+ipcMain.handle(
+  'print-silent',
+  async (_event, options: PrintOptions & { file: Uint8Array; password?: string }) => {
+    if (!options.printerName) {
+      return { success: false, error: 'Nenhuma impressora selecionada.' }
+    }
+
+    const printWin = await openPdfInPrintWindow(options)
+    if (!printWin) return { success: false, error: 'Falha ao preparar janela de impressão.' }
+
+    try {
       return await new Promise((resolve) => {
-        printWin!.webContents.print(
+        printWin.webContents.print(
           {
             silent: true,
             printBackground: true,
-            deviceName: printerName,
+            deviceName: options.printerName,
             copies: options.copies || 1,
             color: options.color !== false,
           },
           (success, errorType) => {
-            console.log('[PRINT] success:', success)
-            console.log('[PRINT] error:', errorType)
             resolve({ success, error: success ? null : errorType })
           }
         )
       })
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      console.error('[PRINT] Erro:', message)
-      return { success: false, error: message }
     } finally {
-      if (printWin && !printWin.isDestroyed()) printWin.close()
-      setTimeout(() => {
-        try { fs.unlinkSync(tmpHtmlPath) } catch { void 0 }
-      }, 5000)
+      if (!printWin.isDestroyed()) printWin.close()
     }
   }
 )
@@ -358,6 +358,32 @@ ipcMain.handle(
 )
 
 ipcMain.handle('get-app-version', () => app.getVersion())
+
+ipcMain.handle(
+  'print-native',
+  async (_event, options: PrintOptions & { file: Uint8Array; password?: string }) => {
+    const printWin = await openPdfInPrintWindow(options)
+    if (!printWin) return { success: false, error: 'Falha ao preparar janela de impressão.' }
+
+    try {
+      return await new Promise((resolve) => {
+        printWin.webContents.print(
+          {
+            silent: false,
+            printBackground: true,
+            copies: options.copies || 1,
+            color: options.color !== false,
+          },
+          (success, errorType) => {
+            resolve({ success, error: success ? null : errorType })
+          }
+        )
+      })
+    } finally {
+      if (!printWin.isDestroyed()) printWin.close()
+    }
+  }
+)
 
 app.whenReady().then(createWindow)
 

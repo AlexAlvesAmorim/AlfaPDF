@@ -130,22 +130,16 @@ function PdfViewer({
           }
         })
 
-        console.log('[SCROLL] visible:', currentVisible, 'prevPage.current:', prevPage.current, 'tab.currentPage:', tab.currentPage)
-
         if (currentVisible !== prevPage.current) {
-          console.log('[SCROLL] CHAMANDO onTabUpdate com currentPage:', currentVisible)
           isProgrammaticScroll.current = true
           prevPage.current = currentVisible
           onTabUpdate({ currentPage: currentVisible })
         }
-      } else {
-        console.log('[SCROLL] BLOQUEADO — isNavigating é true')
       }
     }
 
     container.addEventListener('scroll', handleScroll, { passive: true })
     return () => container.removeEventListener('scroll', handleScroll)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerRef, onTabUpdate])
 
   if (!tab?.data) {
@@ -188,8 +182,9 @@ function PdfViewer({
               <Page
                 pageNumber={pageNumber}
                 scale={tab.zoom}
-                renderTextLayer={false}
-                renderAnnotationLayer={false}
+                renderTextLayer={true}
+                renderAnnotationLayer={true}
+                devicePixelRatio={window.devicePixelRatio}
               />
             </div>
           )

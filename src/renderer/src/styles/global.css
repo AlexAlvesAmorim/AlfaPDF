@@ -143,7 +143,6 @@ code {
   border-radius: 16px;
   padding: 28px;
   display: flex;
-  flex-direction: flex-start;
   flex-direction: column;
   gap: 18px;
   box-shadow:

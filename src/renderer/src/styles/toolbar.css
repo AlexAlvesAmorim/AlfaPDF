@@ -203,6 +203,7 @@
 }
 
 .pdf-print-controls .pdf-control-btn,
+.pdf-print-controls .pdf-print-advanced,
 .pdf-file-controls .pdf-control-btn {
   background: linear-gradient(
     135deg,

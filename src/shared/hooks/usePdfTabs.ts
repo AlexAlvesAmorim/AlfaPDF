@@ -24,6 +24,11 @@ export function usePdfTabs() {
 
     const closeTab = useCallback((id: string) => {
         setTabs(prev => {
+            const closingTab = prev.find(t => t.id === id);
+            if (closingTab?.url) {
+                URL.revokeObjectURL(closingTab.url);
+            }
+
             const newTabs = prev.filter(t => t.id !== id);
 
             if (id === activeTabId) {
@@ -40,7 +45,6 @@ export function usePdfTabs() {
     }, []);
 
     const updateTab = useCallback((id: string, updates: Partial<Omit<PdfTab, 'id' | 'data'>>) => {
-        console.log('[updateTab] chamado com:', updates)
         setTabs(prev => prev.map(tab =>
             tab.id === id ? { ...tab, ...updates } : tab
         ))

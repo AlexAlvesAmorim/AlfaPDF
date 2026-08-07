@@ -230,9 +230,43 @@
   margin: var(--space-6);
   display: flex;
   justify-content: center;
+  position: relative;
 }
 
 .a4-page canvas {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.react-pdf__Page__textContent,
+.react-pdf__Page__annotations {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 1;
+  line-height: 1;
+  user-select: text;
+  pointer-events: auto;
+}
+
+.react-pdf__Page__textContent span,
+.react-pdf__Page__annotations span,
+.react-pdf__Page__annotations a {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+.react-pdf__Page__annotations a {
+  color: transparent;
+  pointer-events: auto;
+}
+
+.react-pdf__Page__annotations a:hover {
+  background: rgba(255, 235, 59, 0.25);
 }

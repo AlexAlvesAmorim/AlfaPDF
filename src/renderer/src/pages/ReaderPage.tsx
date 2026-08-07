@@ -43,20 +43,16 @@ export function ReaderPage() {
   }
 
   const tryOpenPdf = async (bytes: Uint8Array, name: string, password?: string) => {
-    console.log('[tryOpenPdf] chamado, password:', password)
+    const blob = new Blob(
+      [new Uint8Array(bytes)],
+      { type: 'application/pdf' }
+    )
+    const url = URL.createObjectURL(blob)
     try {
-      const blob = new Blob(
-        [new Uint8Array(bytes)],
-        { type: 'application/pdf' }
-      )
-      const url = URL.createObjectURL(blob)
       await loadPdf(url, password)
-      console.log('[tryOpenPdf] loadPdf ok, abrindo tab')
       openPdf(blob, name, password)
-
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
-      console.log('[tryOpenPdf] erro capturado:', message)
       if (message === 'PASSWORD_REQUIRED') {
         setPasswordDialog({ open: true, bytes, name, wrongPassword: false })
       } else if (message === 'PASSWORD_WRONG') {
@@ -64,6 +60,8 @@ export function ReaderPage() {
       } else {
         showToast('Erro ao abrir o PDF.', 'error')
       }
+    } finally {
+      URL.revokeObjectURL(url)
     }
   }
 
@@ -116,6 +114,31 @@ export function ReaderPage() {
   const printPdf = () => {
     if (!activeTab) return
     setPrintDialogOpen(true)
+  }
+
+  const printAdvanced = async () => {
+    if (!window.electronAPI?.printNative || !activeTab?.data) return
+
+    try {
+      const arrayBuffer = await (activeTab.data as Blob).arrayBuffer()
+      const file = new Uint8Array(arrayBuffer)
+
+      await window.electronAPI.printNative({
+        copies: 1,
+        color: true,
+        duplex: 'simplex',
+        pageRange: 'all',
+        currentPage: activeTab.currentPage,
+        printBackground: true,
+        printQuality: 'normal',
+        silent: false,
+        file,
+        password: activeTab.password,
+      })
+    } catch (err) {
+      console.error('Erro na impressão avançada:', err)
+      showToast('Erro ao abrir diálogo de impressão.', 'error')
+    }
   }
 
   const handlePrint = async (options: PrintOptions) => {
@@ -257,6 +280,7 @@ export function ReaderPage() {
             onZoomOut={handleZoomOut}
             onResetZoom={handleResetZoom}
             onPrint={printPdf}
+            onPrintAdvanced={printAdvanced}
             onOpenPdf={handleFileUpload}
           />
 
@@ -278,6 +302,7 @@ export function ReaderPage() {
           onSaveAsPdf={handleSaveAsPdf}
           currentPage={activeTab.currentPage}
           totalPages={activeTab.totalPages || 0}
+          fileName={activeTab.name}
         />
       )}
       {passwordDialog?.open && (
