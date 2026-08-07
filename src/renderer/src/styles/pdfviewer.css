@@ -167,7 +167,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--modal-overlay);
   backdrop-filter: blur(10px);
   gap: 1.8rem;
   z-index: 9999;
@@ -201,7 +201,7 @@
 }
 
 .pdf-loading-text {
-  color: white;
+  color: var(--text-primary);
   font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: 1px;
@@ -209,7 +209,7 @@
 
 .pdf-error {
   text-align: center;
-  color: white;
+  color: var(--text-primary);
   font-size: 1.5rem;
   font-weight: 500;
   letter-spacing: 1px;

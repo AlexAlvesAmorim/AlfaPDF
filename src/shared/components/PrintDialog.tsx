@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import PrintIcon from '@mui/icons-material/Print'
-import type { PrintOptions, PrintQuality } from '@/shared/types'
+import type { PrintOptions, PrintQuality } from '../types'
 
 interface Printer { name: string; isDefault?: boolean }
 export type DuplexMode = 'simplex' | 'longEdge' | 'shortEdge'

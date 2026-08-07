@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import logo from '../../renderer/assets/logo.png'
 
 interface Props {
@@ -5,6 +6,12 @@ interface Props {
 }
 
 export function WelcomeScreen({ onOpenPdf }: Props) {
+  const [version, setVersion] = useState('')
+
+  useEffect(() => {
+    window.electronAPI?.getAppVersion().then(v => setVersion(v))
+  }, [])
+
   return (
     <div className="welcome-container">
       <div className="welcome-logo-wrapper">
@@ -62,7 +69,7 @@ export function WelcomeScreen({ onOpenPdf }: Props) {
           Desenvolvido por <strong>Alex A. Alves</strong>
         </span>
         <span className="welcome-footer__dot" />
-        <span className="welcome-footer__version">v1.2.0</span>
+        <span className="welcome-footer__version">v{version}</span>
       </footer>
     </div>
   )

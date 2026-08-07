@@ -1,4 +1,6 @@
-:root {
+:root,
+[data-theme="dark"],
+[data-mode="night"] {
   --primary-red: #e4002b;
   --primary-red-dark: #b20022;
   --primary-red-darker: #8a0017;
@@ -52,6 +54,44 @@
   --glow-purple: 0 0 40px rgba(139, 92, 246, 0.3);
   --glow-orange: 0 0 30px rgba(255, 107, 53, 0.3);
 
+  --surface-gradient: linear-gradient(
+    135deg,
+    rgba(12, 6, 6, 0.88) 0%,
+    rgba(20, 13, 13, 0.88) 100%
+  );
+  --surface-gradient-hover: linear-gradient(
+    135deg,
+    rgba(20, 12, 12, 0.92) 0%,
+    rgba(30, 20, 20, 0.92) 100%
+  );
+  --body-gradient: radial-gradient(circle at 15% 25%, rgba(228, 0, 43, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(100, 50, 200, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at center, #1a1a1a 0%, #121212 40%, #0a0a0a 75%, #000000 100%);
+  --body-grid-color: rgba(228, 0, 43, 0.015);
+  --body-grain-opacity: 0.4;
+
+  --header-height: 180px;
+
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Crimson Pro', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -91,30 +131,86 @@
   --z-modal: 400;
   --z-tooltip: 500;
 
-  --header-height: 180px;
-
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Crimson Pro', Georgia, serif;
-  --font-mono: 'JetBrains Mono', monospace;
-
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 2rem;
-  --font-size-4xl: 2.5rem;
-
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-
   --blur-sm: 8px;
   --blur-md: 16px;
   --blur-lg: 24px;
   --blur-xl: 40px;
+}
+
+[data-theme="light"],
+[data-mode="day"] {
+  --primary-red: #d6001f;
+  --primary-red-dark: #a30019;
+  --primary-red-darker: #7a0013;
+  --primary-red-light: #ff3a64;
+  --primary-red-bright: #ff547a;
+  --primary-red-glow: rgba(214, 0, 31, 0.32);
+  --primary-red-subtle: rgba(214, 0, 31, 0.08);
+
+  --secondary-purple: #7c3aed;
+  --secondary-purple-light: #a78bfa;
+  --secondary-purple-dark: #5b21b6;
+  --secondary-purple-glow: rgba(124, 58, 237, 0.22);
+
+  --accent-orange: #ea580c;
+  --accent-orange-light: #fb923c;
+  --accent-orange-glow: rgba(234, 88, 12, 0.22);
+
+  --bg-deepest: #f5f5f7;
+  --bg-base: #fafafa;
+  --bg-elevated-1: #ffffff;
+  --bg-elevated-2: #f3f4f6;
+  --bg-elevated-3: #e5e7eb;
+  --bg-surface: #ffffff;
+
+  --glass-subtle: rgba(0, 0, 0, 0.015);
+  --glass-light: rgba(0, 0, 0, 0.04);
+  --glass-medium: rgba(0, 0, 0, 0.07);
+  --glass-strong: rgba(0, 0, 0, 0.12);
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
+  --text-muted: #9ca3af;
+  --text-disabled: #d1d5db;
+
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-light: rgba(0, 0, 0, 0.1);
+  --border-medium: rgba(0, 0, 0, 0.18);
+  --border-accent: rgba(214, 0, 31, 0.35);
+  --border-glow: rgba(214, 0, 31, 0.55);
+
+  --shadow-ambient: 0 1px 4px rgba(15, 23, 42, 0.08);
+  --shadow-low: 0 2px 8px rgba(15, 23, 42, 0.1);
+  --shadow-medium: 0 6px 20px rgba(15, 23, 42, 0.14);
+  --shadow-high: 0 12px 32px rgba(15, 23, 42, 0.18);
+  --shadow-dramatic: 0 20px 48px rgba(15, 23, 42, 0.24);
+
+  --glow-red-soft: 0 0 18px rgba(214, 0, 31, 0.18);
+  --glow-red-medium: 0 0 36px rgba(214, 0, 31, 0.28);
+  --glow-red-strong: 0 0 60px rgba(214, 0, 31, 0.45);
+  --glow-purple: 0 0 36px rgba(124, 58, 237, 0.24);
+  --glow-orange: 0 0 28px rgba(234, 88, 12, 0.24);
+
+  --surface-gradient: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(245, 245, 247, 0.92) 100%
+  );
+  --surface-gradient-hover: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(238, 238, 242, 0.98) 100%
+  );
+  --body-gradient: radial-gradient(circle at 15% 25%, rgba(214, 0, 31, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(124, 58, 237, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at center, #ffffff 0%, #f5f5f7 55%, #ececef 100%);
+  --body-grid-color: rgba(214, 0, 31, 0.02);
+  --body-grain-opacity: 0.15;
+
+  --header-height: 180px;
+
+  --modal-overlay: rgba(15, 23, 42, 0.45);
 }
 
 [data-theme="midnight"] {

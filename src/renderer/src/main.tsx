@@ -16,6 +16,7 @@ import { pdfjs } from 'react-pdf'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
+import { ThemeProvider } from '../../shared/hooks/ThemeContext'
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.mjs',
@@ -24,6 +25,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
   </React.StrictMode>
 )

@@ -120,8 +120,10 @@ function createWindow(): void {
 
   if (app.isPackaged) {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
+  } else if (process.env.ELECTRON_RENDERER_URL) {
+    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
   } else {
-    mainWindow.loadURL('http://localhost:5173')
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 }
 
@@ -354,6 +356,8 @@ ipcMain.handle(
     }
   }
 )
+
+ipcMain.handle('get-app-version', () => app.getVersion())
 
 app.whenReady().then(createWindow)
 

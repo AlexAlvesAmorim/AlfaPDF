@@ -6,6 +6,7 @@ import PrintIcon from "@mui/icons-material/Print"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
+import { ThemeToggle } from "./ThemeToggle"
 
 type ToolbarProps = {
   currentPage: number
@@ -46,6 +47,8 @@ export function Toolbar({
           onClick={onPrev}
           disabled={currentPage <= 1 || totalPages === 0}
           className="pdf-control-btn"
+          aria-label="Página anterior"
+          title="Página anterior"
         >
           <ChevronLeftIcon sx={{ fontSize: 22 }} />
         </button>
@@ -63,6 +66,8 @@ export function Toolbar({
           onClick={onNext}
           disabled={currentPage >= totalPages || totalPages === 0}
           className="pdf-control-btn"
+          aria-label="Próxima página"
+          title="Próxima página"
         >
           <ChevronRightIcon sx={{ fontSize: 22 }} />
         </button>
@@ -74,6 +79,8 @@ export function Toolbar({
           onClick={onZoomOut}
           disabled={totalPages === 0}
           className="pdf-control-btn"
+          aria-label="Diminuir zoom"
+          title="Diminuir zoom"
         >
           <ZoomOutIcon sx={{ fontSize: 20 }} />
         </button>
@@ -89,6 +96,8 @@ export function Toolbar({
           onClick={onZoomIn}
           disabled={totalPages === 0}
           className="pdf-control-btn"
+          aria-label="Aumentar zoom"
+          title="Aumentar zoom"
         >
           <ZoomInIcon sx={{ fontSize: 20 }} />
         </button>
@@ -98,6 +107,8 @@ export function Toolbar({
           onClick={onResetZoom}
           disabled={totalPages === 0}
           className="pdf-control-btn"
+          aria-label="Restaurar zoom"
+          title="Restaurar zoom (100%)"
         >
           <RestartAltIcon sx={{ fontSize: 20 }} />
         </button>
@@ -109,6 +120,8 @@ export function Toolbar({
           onClick={onPrint}
           disabled={totalPages === 0}
           className="pdf-control-btn"
+          aria-label="Imprimir (Ctrl+P)"
+          title="Imprimir (Ctrl+P)"
         >
           <PrintIcon sx={{ fontSize: 20 }} />
         </button>
@@ -119,10 +132,16 @@ export function Toolbar({
             onClick={() => {
               onOpenPdf()
             }}
+            aria-label="Abrir PDF"
+            title="Abrir PDF"
           >
             <UploadFileIcon sx={{ fontSize: 20 }} />
           </button>
         </div>
+      </div>
+
+      <div className="pdf-theme-controls">
+        <ThemeToggle />
       </div>
     </div>
 

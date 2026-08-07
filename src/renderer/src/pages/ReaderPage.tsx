@@ -1,4 +1,4 @@
-import PrintDialog from '../../PrintDialog'
+import PrintDialog from '../../../shared/components/PrintDialog'
 import type { PrintOptions } from '../../../shared/types'
 import { Layout } from '../../../shared/components/Layout'
 import PdfViewer from '../../../shared/components/PdfViewer'
@@ -267,16 +267,18 @@ export function ReaderPage() {
             onTabUpdate={(updates) => updateTab(activeTab.id, updates)}
             onLoadSuccess={(numPages) => updateTab(activeTab.id, { totalPages: numPages })}
           />
-
-          <PrintDialog
-            open={printDialogOpen}
-            onClose={() => setPrintDialogOpen(false)}
-            onPrint={handlePrint}
-            onSaveAsPdf={handleSaveAsPdf}
-            currentPage={activeTab?.currentPage ?? 1}
-            totalPages={activeTab?.totalPages ?? 0}
-          />
         </>
+      )}
+
+      {printDialogOpen && activeTab && (
+        <PrintDialog
+          open={printDialogOpen}
+          onClose={() => setPrintDialogOpen(false)}
+          onPrint={handlePrint}
+          onSaveAsPdf={handleSaveAsPdf}
+          currentPage={activeTab.currentPage}
+          totalPages={activeTab.totalPages || 0}
+        />
       )}
       {passwordDialog?.open && (
         <PasswordDialog

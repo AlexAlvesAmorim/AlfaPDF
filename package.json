@@ -89,7 +89,11 @@
       "shortcutName": "ALFA PDF Reader",
       "installerIcon": "src/renderer/assets/logo512.ico",
       "installerHeader": "build/installer-header.bmp",
-      "installerSidebar": "build/installer-sidebar.bmp"
+      "installerSidebar": "build/installer-sidebar.bmp",
+      "guid": "c2e5f8a1-4b6d-7e9f-3a2c-8d1b5f6e0a9c",
+      "allowElevation": true,
+      "uninstallDisplayName": "ALFA PDF Reader 2.0.0",
+      "deleteAppDataOnUninstall": false
     }
   }
 }

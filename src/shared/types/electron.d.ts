@@ -21,6 +21,7 @@ declare global {
       saveAsPdf: (
         options: PrintOptions & { file: Uint8Array }
       ) => Promise<SavePdfResult>
+      getAppVersion: () => Promise<string>
       onOpenPdfFromSystem: (
         callback: (data: { buffer: Uint8Array; fileName: string }) => void
       ) => void
