@@ -280,7 +280,6 @@ export function ReaderPage() {
             onZoomOut={handleZoomOut}
             onResetZoom={handleResetZoom}
             onPrint={printPdf}
-            onPrintAdvanced={printAdvanced}
             onOpenPdf={handleFileUpload}
           />
 
@@ -300,6 +299,7 @@ export function ReaderPage() {
           onClose={() => setPrintDialogOpen(false)}
           onPrint={handlePrint}
           onSaveAsPdf={handleSaveAsPdf}
+          onPrintAdvanced={printAdvanced}
           currentPage={activeTab.currentPage}
           totalPages={activeTab.totalPages || 0}
           fileName={activeTab.name}

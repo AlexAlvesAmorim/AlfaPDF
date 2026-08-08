@@ -14,4 +14,34 @@ contextBridge.exposeInMainWorld('electronAPI', {
         ipcRenderer.removeAllListeners('open-pdf-from-system')
         ipcRenderer.on('open-pdf-from-system', (_event, data) => callback(data))
     },
+
+    // === AUTO-UPDATE ====================================================
+    checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+    quitAndInstall: () => ipcRenderer.invoke('quit-and-install'),
+    getUpdateStatus: () => ipcRenderer.invoke('get-update-status'),
+
+    onUpdateChecking: (callback: () => void) => {
+        ipcRenderer.removeAllListeners('update-checking')
+        ipcRenderer.on('update-checking', () => callback())
+    },
+    onUpdateAvailable: (callback: (info: { version: string; releaseNotes: unknown }) => void) => {
+        ipcRenderer.removeAllListeners('update-available')
+        ipcRenderer.on('update-available', (_event, info) => callback(info))
+    },
+    onUpdateNotAvailable: (callback: (info: { version: string }) => void) => {
+        ipcRenderer.removeAllListeners('update-not-available')
+        ipcRenderer.on('update-not-available', (_event, info) => callback(info))
+    },
+    onUpdateProgress: (callback: (progress: { percent: number; transferred: number; total: number }) => void) => {
+        ipcRenderer.removeAllListeners('update-progress')
+        ipcRenderer.on('update-progress', (_event, progress) => callback(progress))
+    },
+    onUpdateDownloaded: (callback: (info: { version: string }) => void) => {
+        ipcRenderer.removeAllListeners('update-downloaded')
+        ipcRenderer.on('update-downloaded', (_event, info) => callback(info))
+    },
+    onUpdateError: (callback: (error: { message: string }) => void) => {
+        ipcRenderer.removeAllListeners('update-error')
+        ipcRenderer.on('update-error', (_event, error) => callback(error))
+    },
 })

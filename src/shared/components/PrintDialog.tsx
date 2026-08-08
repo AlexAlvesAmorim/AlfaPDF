@@ -7,6 +7,7 @@ import {
 } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import PrintIcon from '@mui/icons-material/Print'
+import TuneIcon from '@mui/icons-material/Tune'
 import DescriptionIcon from '@mui/icons-material/Description'
 import PaletteIcon from '@mui/icons-material/Palette'
 import LayersIcon from '@mui/icons-material/Layers'
@@ -19,6 +20,7 @@ interface PrintDialogProps {
   onClose: () => void;
   onPrint: (options: PrintOptions) => void;
   onSaveAsPdf: (options: PrintOptions) => void;
+  onPrintAdvanced?: () => void;
   currentPage: number;
   totalPages: number;
   fileName?: string;
@@ -142,7 +144,7 @@ function Section({ icon, title, children }: SectionProps) {
 }
 
 export default function PrintDialog({
-  open, onClose, onPrint, onSaveAsPdf, currentPage, totalPages, fileName,
+  open, onClose, onPrint, onSaveAsPdf, onPrintAdvanced, currentPage, totalPages, fileName,
 }: PrintDialogProps) {
   const [printers, setPrinters] = useState<Printer[]>([])
   const [selectedPrinter, setSelectedPrinter] = useState('')
@@ -470,6 +472,17 @@ export default function PrintDialog({
           <Button variant="outlined" onClick={handleSaveAsPdf} disabled={loading} startIcon={<SaveIcon />}>
             Salvar PDF
           </Button>
+          {onPrintAdvanced && (
+            <Button
+              variant="outlined"
+              onClick={() => { onPrintAdvanced(); onClose() }}
+              disabled={loading}
+              startIcon={<TuneIcon />}
+              title="Abrir o diálogo de impressão do Windows"
+            >
+              Opções avançadas
+            </Button>
+          )}
           <Button
             variant="contained"
             color="primary"

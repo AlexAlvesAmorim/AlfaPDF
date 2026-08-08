@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { autoUpdater, UpdateInfo } from 'electron-updater'
 import * as fs from 'fs'
 import * as path from 'path'
 import { PDFDocument } from 'pdf-lib'
@@ -359,6 +360,87 @@ ipcMain.handle(
 
 ipcMain.handle('get-app-version', () => app.getVersion())
 
+// === AUTO-UPDATE (GitHub Releases) ========================================
+// Fluxo: ao iniciar, verifica update -> baixa em background -> notifica renderer.
+// O usuario pode instalar imediatamente ("Instalar agora") ou ao fechar o app.
+// autoUpdaterrega o canal "latest" do GitHub Releases por padrao.
+
+let updateDownloaded = false
+let pendingUpdateInfo: UpdateInfo | null = null
+
+autoUpdater.autoDownload = true
+autoUpdater.autoInstallOnAppQuit = true
+
+function notifyRenderer(channel: string, payload?: unknown): void {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(channel, payload)
+  }
+}
+
+autoUpdater.on('checking-for-update', () => {
+  console.log('[autoUpdater] Verificando atualizacoes...')
+  notifyRenderer('update-checking')
+})
+
+autoUpdater.on('update-available', (info: UpdateInfo) => {
+  console.log('[autoUpdater] Atualizacao disponivel:', info.version)
+  notifyRenderer('update-available', { version: info.version, releaseNotes: info.releaseNotes })
+})
+
+autoUpdater.on('update-not-available', (info: UpdateInfo) => {
+  console.log('[autoUpdater] Aplicativo atualizado:', info.version)
+  notifyRenderer('update-not-available', { version: info.version })
+})
+
+autoUpdater.on('download-progress', (progress) => {
+  notifyRenderer('update-progress', {
+    percent: Math.round(progress.percent),
+    transferred: progress.transferred,
+    total: progress.total,
+  })
+})
+
+autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
+  console.log('[autoUpdater] Atualizacao baixada:', info.version)
+  updateDownloaded = true
+  pendingUpdateInfo = info
+  notifyRenderer('update-downloaded', { version: info.version })
+})
+
+autoUpdater.on('error', (err: Error) => {
+  console.error('[autoUpdater] Erro:', err.message)
+  notifyRenderer('update-error', { message: err.message })
+})
+
+ipcMain.handle('check-for-updates', async () => {
+  try {
+    const result = await autoUpdater.checkForUpdates()
+    return result != null
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('[check-for-updates] Erro:', message)
+    return false
+  }
+})
+
+ipcMain.handle('quit-and-install', async () => {
+  if (!updateDownloaded) return false
+  // Fechar todas as janelas antes de instalar evita avisos
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.close()
+  }
+  autoUpdater.quitAndInstall()
+  return true
+})
+
+ipcMain.handle('get-update-status', () => ({
+  downloaded: updateDownloaded,
+  version: pendingUpdateInfo?.version ?? null,
+}))
+
+
+
+
 ipcMain.handle(
   'print-native',
   async (_event, options: PrintOptions & { file: Uint8Array; password?: string }) => {
@@ -385,7 +467,15 @@ ipcMain.handle(
   }
 )
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  // Verifica atualizacao 3s apos abrir (da tempo de a janela renderizar)
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch((err: Error) => {
+      console.error('[autoUpdater] Falha na verificacao inicial:', err.message)
+    })
+  }, 3000)
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
