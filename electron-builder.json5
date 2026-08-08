@@ -1,5 +1,5 @@
 {
-  "appId": "com.alfa.pdfreader",
+  "appId": "com.alex.pdfreader",
   "productName": "ALFA PDF Reader",
   "copyright": "Copyright © 2026 Alex Alves Amorim. Todos os direitos reservados.",
   "asar": false,
@@ -27,7 +27,7 @@
       {
         "ext": "pdf",
         "name": "ALFA PDF Document",
-        "description": "Documento PDF - ALFA PDF Reader Pro",
+        "description": "Documento PDF - ALFA PDF Reader",
         "role": "Viewer",
         "icon": "src/renderer/assets/logo512.ico"
       }
@@ -41,7 +41,7 @@
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
     "runAfterFinish": true,
-    "shortcutName": "ALFA PDF Reader Pro v10",
+    "shortcutName": "ALFA PDF Reader",
     "installerIcon": "src/renderer/assets/logo512.ico",
     "uninstallerIcon": "src/renderer/assets/logo512.ico",
     "installerHeaderIcon": "src/renderer/assets/logo512.ico",
@@ -59,15 +59,15 @@
     "displayUninstallProgress": true,
 
     "welcomePage": {
-      "title": "Bem-vindo ao ALFA PDF Reader Pro v10",
-      "subtitle": "Visualizador PDF profissional, rápido e elegante",
-      "description": "Leitura contínua • Múltiplas abas • Impressão profissional • Suporte a senhas • Zoom inteligente"
+      "title": "Bem-vindo ao ALFA PDF Reader",
+      "subtitle": "Visualizador PDF profissional e intuitivo",
+      "description": "Leitura contínua · Múltiplas abas · Impressão profissional · Suporte a senhas · Atualização automática"
     },
 
     "finishPage": {
-      "title": "ALFA PDF Reader Pro v10 instalado com sucesso!",
-      "subtitle": "Clique em Concluir para começar a usar o ALFA PDF Reader Pro v10",
-      "runButton": "Iniciar ALFA PDF Reader Pro v10"
+      "title": "ALFA PDF Reader instalado com sucesso!",
+      "subtitle": "O instalador foi configurado para Windows 10/11",
+      "runButton": "Iniciar ALFA PDF Reader"
     }
   }
 }
