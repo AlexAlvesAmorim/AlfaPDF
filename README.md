@@ -29,19 +29,6 @@ ALFA PDF Reader é um **software desktop** desenvolvido para uso profissional, c
 
 ---
 
-## 🖼️ Screenshots
-
-<div align="center">
-
-<img src="docs/screenshots/app-home.png" width="400" alt="Tela inicial do ALFA PDF Reader" />
-<img src="docs/screenshots/print-dialog.png" width="400" alt="Modal de impressão com opções avançadas" />
-
-</div>
-
-> 💡 *Para adicionar screenshots reais: capture via `Electron` ou `Windows Snipping Tool` e coloque em `docs/screenshots/`*
-
----
-
 ## 🧠 Experiência de Uso
 
 ### 🖥️ Tela Inicial
