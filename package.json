@@ -10,6 +10,7 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "dist": "electron-vite build && electron-builder",
+    "dist:installer": "node scripts/build-installer.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest run",
@@ -22,6 +23,7 @@
     "@mui/icons-material": "^7.3.8",
     "@mui/material": "^7.3.7",
     "@mui/system": "^7.3.7",
+    "electron-updater": "^6.8.9",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.4.296",
     "react": "^18.2.0",
@@ -93,7 +95,15 @@
       "guid": "c2e5f8a1-4b6d-7e9f-3a2c-8d1b5f6e0a9c",
       "allowElevation": true,
       "uninstallDisplayName": "ALFA PDF Reader 2.0.0",
-      "deleteAppDataOnUninstall": false
-    }
+      "deleteAppDataOnUninstall": false,
+      "differentialPackage": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "AlexAlvesAmorim",
+      "repo": "AlfaPDF",
+      "releaseType": "release"
+    },
+    "generateUpdatesFilesForAllChannels": true
   }
 }
