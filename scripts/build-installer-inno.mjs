@@ -7,6 +7,7 @@ import { execSync } from 'child_process'
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { resolve, join, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { createHash } from 'crypto'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -93,11 +94,26 @@ async function main() {
 
   console.log(`\n✅ Instalador criado: ${installerPath}`)
 
+  // 3.5. Gerar latest.yml para electron-updater
+  const latestYmlPath = join(RELEASE_DIR, 'latest.yml')
+  const sha512 = createHash('sha512').update(readFileSync(installerPath)).digest('base64')
+  const latestYmlContent = `version: ${version}
+path: ${installerName}
+sha512: ${sha512}
+releaseDate: ${new Date().toISOString()}
+files:
+  - url: ${installerName}
+    sha512: ${sha512}
+    size: ${(readFileSync(installerPath)).length}
+`
+  writeFileSync(latestYmlPath, latestYmlContent)
+  console.log(`\n📄 latest.yml gerado: ${latestYmlPath}`)
+
   // 4. Publicar no GitHub Releases (requer GH_TOKEN)
   if (process.env.GH_TOKEN) {
     console.log('\n📤 Publicando no GitHub Releases...')
     try {
-      run(`gh release create ${versionTag} "${installerPath}" --title "ALFA PDF Reader ${version}" --notes-file release-notes.md --repo AlexAlvesAmorim/AlfaPDF`)
+      run(`gh release create ${versionTag} "${installerPath}" "${latestYmlPath}" --title "ALFA PDF Reader ${version}" --notes-file release-notes.md --repo AlexAlvesAmorim/AlfaPDF`)
       console.log('\n✅ Publicado com sucesso!')
     } catch (e) {
       console.error('\n❌ Falha ao publicar:', e.message)
@@ -105,7 +121,7 @@ async function main() {
     }
   } else {
     console.log('\n⚠️  GH_TOKEN não definido. Pule a publicação manual:')
-    console.log(`   gh release create ${versionTag} "${installerPath}" --title "ALFA PDF Reader ${version}" --notes-file release-notes.md --repo AlexAlvesAmorim/AlfaPDF`)
+    console.log(`   gh release create ${versionTag} "${installerPath}" "${latestYmlPath}" --title "ALFA PDF Reader ${version}" --notes-file release-notes.md --repo AlexAlvesAmorim/AlfaPDF`)
   }
 
   console.log('\n🎉 Build completo!')
