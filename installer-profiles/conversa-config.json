@@ -1,0 +1,53 @@
+{
+  "project": {
+    "name": "ALFA PDF Reader",
+    "version": "2.0.0",
+    "suite": "2.0",
+    "publisher": "Alex Alves Amorim",
+    "brand": "Dev de Favela",
+    "url": "https://github.com/AlexAlvesAmorim/AlfaPDF",
+    "exeName": "ALFA PDF Reader.exe",
+    "copyright": "Copyright (c) 2026 Alex Alves Amorim"
+  },
+  "installer": {
+    "tool": "Inno Setup",
+    "script": "installer/ALFA-PDF-Reader.iss",
+    "outputName": "ALFA-PDF-Reader-Pro-v10-Setup-x64.exe",
+    "outputDir": "release",
+    "sourceDir": "release/win-unpacked",
+    "exclusions": ["unins*"],
+    "compression": "lzma2/ultra64",
+    "solidCompression": true,
+    "languages": ["ptbr", "en"],
+    "installerType": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
+      "displayLanguageSelector": true,
+      "multiLanguageInstaller": true,
+      "warningsAsErrors": true
+    },
+    "tasks": {
+      "desktopicon": "Criar icon na Area de Trabalho",
+      "startmenu": "Criar atalhos no Menu Iniciar",
+      "pdfassoc": "Associar arquivos .pdf ao ALFA PDF Reader",
+      "runafter": "Iniciar ALFA PDF Reader agora"
+    },
+    "components": {
+      "core": "Aplicativo ALFA PDF Reader (nucleo)",
+      "docs": "Documentacao e licenca"
+    }
+  },
+  "buildPreferences": {
+    "createdFromConversa": "2026-08-09",
+    "notes": [
+      "Inno Setup esta instalado em: C:\\Users\\Administrator\\AppData\\Local\\Programs\\Inno Setup 6\\ISCC.exe",
+      "Installer gerado com sucesso: release\\ALFA-PDF-Reader-Pro-v10-Setup-x64.exe",
+      "Utilizar instalador do Inno Setup por ter tema visual customizado (dark + vermelho)",
+      "Validar que sourceDir (release/win-unpacked) existe antes do build"
+    ]
+  }
+}

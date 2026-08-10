@@ -14,15 +14,20 @@
     "package.json"
   ],
 
+  "publish": {
+    "provider": "github",
+    "owner": "AlexAlvesAmorim",
+    "repo": "AlfaPDF"
+  },
+
   "win": {
+    "icon": "src/renderer/assets/logo512.ico",
     "target": [
       {
         "target": "nsis",
         "arch": ["x64"]
       }
     ],
-    "icon": "src/renderer/assets/logo512.ico",
-    "artifactName": "${productName} Setup ${version}.exe",
     "fileAssociations": [
       {
         "ext": "pdf",
@@ -46,28 +51,28 @@
     "uninstallerIcon": "src/renderer/assets/logo512.ico",
     "installerHeaderIcon": "src/renderer/assets/logo512.ico",
     "installerHeader": "build/installer-header.bmp",
-    "installerSidebar": "build/installer-sidebar.bmp",
+    "installerSidebar": "installer/assets/sidebar.bmp",
     "deleteAppDataOnUninstall": true,
     "displayLanguageSelector": true,
     "multiLanguageInstaller": true,
     "warningsAsErrors": true,
     "license": "LICENSE.md",
-    "menuCategory": "Produtividade",
+    "menuCategory": "Productivity",
 
     "multiSession": true,
     "displayInstallProgress": true,
     "displayUninstallProgress": true,
 
     "welcomePage": {
-      "title": "Bem-vindo ao ALFA PDF Reader",
+      "title": "Bem-vindo ao ALFA PDF Reader 2.0",
       "subtitle": "Visualizador PDF profissional e intuitivo",
-      "description": "Leitura contínua · Múltiplas abas · Impressão profissional · Suporte a senhas · Atualização automática"
+      "description": "Leitura continua · Multiplas abas · Impressao profissional · Suporte a senhas · Atualizacao automatica"
     },
 
     "finishPage": {
-      "title": "ALFA PDF Reader instalado com sucesso!",
-      "subtitle": "O instalador foi configurado para Windows 10/11",
-      "runButton": "Iniciar ALFA PDF Reader"
+      "title": "ALFA PDF Reader 2.0 instalado com sucesso!",
+      "subtitle": "Clique em Concluir para comecar a usar o ALFA PDF Reader 2.0",
+      "runButton": "Iniciar ALFA PDF Reader 2.0"
     }
   }
 }

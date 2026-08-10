@@ -119,12 +119,18 @@ npm run build         # Build produção
 ```
 
 ---
-
+ 
 ## 📦 Distribuição
-
-- Build para Windows (`nsis` installer)
-- App ID: `com.alex.pdfreader`
-- Instalador: `AlfaPDF Setup.exe`
+ 
+ **Instalador oficial: Inno Setup** (mais profissional e leve)
+ 
+ - **Build para Windows**: Instalador Inno Setup com branding personalizado
+ - **Tamanho otimizado**: ~17 MB (comparado a 114 MB do NSIS)
+ - **Tema visual**: Sidebar vermelho (#e4002b) com logo ALFA
+ - **Suporte multilíngua**: PT-BR e EN
+ - **Features**: Atalhos desktop, associação .pdf, atualização automática
+ - **App ID**: `com.alex.pdfreader`
+ - **Instalador**: `ALFA PDF Reader Setup 2.0.0.exe`
 
 ---
 

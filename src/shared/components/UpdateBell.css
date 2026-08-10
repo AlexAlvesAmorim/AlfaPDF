@@ -1,0 +1,391 @@
+.update-bell-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.update-bell-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-light);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.update-bell-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    var(--glass-medium) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+}
+
+.update-bell-btn:hover::before {
+  opacity: 1;
+}
+
+.update-bell-btn:hover:not(:disabled) {
+  background: var(--glass-medium);
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px var(--shadow-low),
+    0 0 20px var(--primary-red-glow);
+}
+
+.update-bell-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 6px var(--shadow-ambient),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.update-bell-btn.has-notification {
+  color: var(--primary-red);
+  border-color: var(--primary-red);
+  background: var(--primary-red-subtle);
+  animation: bellPulse 2s ease-in-out infinite;
+}
+
+.update-bell-btn.has-notification:hover {
+  background: var(--primary-red);
+  color: white;
+  border-color: var(--primary-red);
+  box-shadow:
+    0 4px 12px var(--primary-red-glow),
+    0 0 20px var(--primary-red-glow);
+}
+
+.update-bell-btn.open {
+  background: var(--glass-medium);
+  border-color: var(--border-medium);
+}
+
+@keyframes bellPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--primary-red-glow);
+  }
+  50% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+.update-bell-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--primary-red);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: badgePop 0.3s var(--ease-elastic);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.update-bell-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-height: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    var(--shadow-high),
+    0 0 40px var(--primary-red-glow);
+  overflow: hidden;
+  z-index: 100;
+  animation: dropdownSlideIn 0.2s var(--ease-smooth);
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.update-bell-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-gradient);
+}
+
+.update-bell-dropdown-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.update-bell-dropdown-close {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.update-bell-dropdown-close:hover {
+  background: var(--glass-medium);
+  color: var(--text-primary);
+}
+
+.update-bell-dropdown-content {
+  padding: var(--space-4);
+  overflow-y: auto;
+  max-height: 320px;
+}
+
+.update-bell-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.update-bell-status.checking {
+  align-items: center;
+  text-align: center;
+  padding: var(--space-4);
+}
+
+.update-bell-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary-red);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.update-bell-status-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.update-bell-status-text strong {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.update-bell-status-text span {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.update-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: var(--space-1);
+}
+
+.update-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-red), var(--accent-orange));
+  border-radius: 3px;
+  transition: width var(--duration-normal) var(--ease-smooth);
+}
+
+.update-percent {
+  align-self: flex-end;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.update-bell-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: linear-gradient(135deg, var(--primary-red-dark), var(--primary-red));
+  border: none;
+  border-radius: var(--radius-lg);
+  color: white;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  box-shadow:
+    0 4px 12px var(--primary-red-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.update-bell-install-btn:hover {
+  background: linear-gradient(135deg, var(--primary-red), var(--primary-red-light));
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px var(--primary-red-glow),
+    0 0 40px var(--primary-red-glow);
+}
+
+.update-bell-install-btn:active {
+  transform: translateY(0);
+}
+
+.update-bell-error-actions {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: var(--space-1);
+}
+
+.update-bell-retry-btn,
+.update-bell-check-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--glass-light);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.update-bell-retry-btn:hover,
+.update-bell-check-btn:hover {
+  background: var(--glass-medium);
+  border-color: var(--border-medium);
+}
+
+.update-bell-dismiss-btn {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  background: var(--primary-red-subtle);
+  border: 1px solid var(--primary-red);
+  border-radius: var(--radius-lg);
+  color: var(--primary-red);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.update-bell-dismiss-btn:hover {
+  background: var(--primary-red);
+  color: white;
+}
+
+.update-bell-release-notes {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.update-bell-release-notes summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-red);
+  padding: var(--space-1) 0;
+  list-style: none;
+}
+
+.update-bell-release-notes summary::-webkit-details-marker {
+  display: none;
+}
+
+.update-bell-release-notes summary::after {
+  content: '+';
+  margin-left: var(--space-2);
+  font-size: 14px;
+  transition: transform var(--duration-fast);
+}
+
+.update-bell-release-notes[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.update-bell-release-notes-content {
+  margin-top: var(--space-2);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.update-bell-release-notes-content h2,
+.update-bell-release-notes-content h3,
+.update-bell-release-notes-content h4 {
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  margin: var(--space-2) 0 var(--space-1);
+}
+
+.update-bell-release-notes-content ul {
+  margin: var(--space-1) 0;
+  padding-left: var(--space-4);
+}
+
+.update-bell-release-notes-content li {
+  margin: var(--space-1) 0;
+}
+
+@media (max-width: 768px) {
+  .update-bell-dropdown {
+    right: -80px;
+    width: 280px;
+  }
+}
