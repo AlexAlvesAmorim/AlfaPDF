@@ -10,7 +10,7 @@
 ; ============================================================================
 
 #define MyAppName          "ALFA PDF Reader"
-#define MyAppVersion      "2.0.0"
+#define MyAppVersion "2.0.0"
 #define MyAppSuite        "2.0"
 #define MyAppPublisher    "Alex Alves Amorim"
 #define MyAppBrand        "Dev de Favela"

@@ -9,8 +9,7 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "dist": "electron-vite build && electron-builder",
-    "dist:installer": "node scripts/build-installer.mjs",
+    "dist": "node scripts/build-installer-inno.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest run",
@@ -40,7 +39,6 @@
     "@typescript-eslint/parser": "^7.1.1",
     "@vitejs/plugin-react": "^4.2.1",
     "electron": "^30.0.1",
-    "electron-builder": "^24.13.3",
     "electron-vite": "^2.3.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -51,59 +49,5 @@
     "vite-plugin-electron": "^0.29.0",
     "vite-plugin-electron-renderer": "^0.14.6",
     "vitest": "^4.1.10"
-  },
-  "build": {
-    "appId": "com.alex.pdfreader",
-    "productName": "ALFA PDF Reader",
-    "asar": false,
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "out/**/*",
-      "node_modules/**/*",
-      "package.json"
-    ],
-    "win": {
-      "icon": "src/renderer/assets/logo512.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "fileAssociations": [
-        {
-          "ext": "pdf",
-          "name": "PDF Document",
-          "description": "Abrir com ALFA PDF Reader",
-          "role": "Viewer"
-        }
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "ALFA PDF Reader",
-      "installerIcon": "src/renderer/assets/logo512.ico",
-      "installerHeader": "build/installer-header.bmp",
-      "installerSidebar": "build/installer-sidebar.bmp",
-      "guid": "c2e5f8a1-4b6d-7e9f-3a2c-8d1b5f6e0a9c",
-      "allowElevation": true,
-      "uninstallDisplayName": "ALFA PDF Reader 2.0.0",
-      "deleteAppDataOnUninstall": false,
-      "differentialPackage": true
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "AlexAlvesAmorim",
-      "repo": "AlfaPDF",
-      "releaseType": "release"
-    },
-    "generateUpdatesFilesForAllChannels": true
   }
 }
