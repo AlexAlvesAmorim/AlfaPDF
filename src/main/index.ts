@@ -3,15 +3,48 @@ import { autoUpdater, UpdateInfo } from 'electron-updater'
 import * as fs from 'fs'
 import * as path from 'path'
 import { PDFDocument } from 'pdf-lib'
-import type { PrintOptions } from '../shared/types/types'
+import type { PrintOptions, PrintSettings } from '../shared/types/types'
+import { parsePageRanges } from '../shared/utils/pageRanges'
+import {
+  addRecentFile,
+  clearRecentFiles,
+  getRecentFiles,
+  loadSettings,
+  saveSettings,
+} from './settings'
+
+// Necessário para o pipeline de impressão carregar o pdf.js local via file://
+app.commandLine.appendSwitch('allow-file-access-from-files')
 
 let mainWindow: BrowserWindow | null = null
 
 function getPdfPathFromArgs(argv: string[]): string | null {
-  const candidate = argv.find(
-    (arg) => arg.toLowerCase().endsWith('.pdf') && fs.existsSync(arg)
-  )
-  return candidate ?? null
+  for (const raw of argv) {
+    let candidate = raw.trim()
+
+    if (candidate.startsWith('"') && candidate.endsWith('"')) {
+      candidate = candidate.slice(1, -1)
+    }
+
+    if (candidate.toLowerCase().startsWith('file://')) {
+      try {
+        candidate = decodeURIComponent(new URL(candidate).pathname)
+        candidate = candidate.replace(/^\/([A-Za-z]:)/, '$1')
+      } catch {
+        continue
+      }
+    }
+
+    if (!candidate.toLowerCase().endsWith('.pdf')) continue
+
+    const resolved = path.isAbsolute(candidate)
+      ? candidate
+      : path.resolve(process.cwd(), candidate)
+
+    if (fs.existsSync(resolved)) return resolved
+  }
+
+  return null
 }
 
 let pendingPdfPath: string | null = getPdfPathFromArgs(process.argv)
@@ -39,8 +72,17 @@ async function sendPdfToRenderer(pdfPath: string): Promise<void> {
   if (!mainWindow) return
 
   try {
+    if (mainWindow.webContents.isLoading()) {
+      await new Promise<void>((resolve) => {
+        mainWindow?.webContents.once('did-finish-load', () => resolve())
+      })
+    }
+
     const buffer = await fs.promises.readFile(pdfPath)
     const fileName = path.basename(pdfPath)
+
+    addRecentFile(pdfPath)
+    app.addRecentDocument(pdfPath)
 
     mainWindow.webContents.send('open-pdf-from-system', { buffer: new Uint8Array(buffer), fileName })
   } catch (err) {
@@ -48,43 +90,63 @@ async function sendPdfToRenderer(pdfPath: string): Promise<void> {
   }
 }
 
-function parsePageRanges(input: string, totalPages: number): number[] {
-  const pages = new Set<number>()
+function parsePageRangesInMain(input: string, totalPages: number): number[] {
+  return parsePageRanges(input, totalPages)
+}
 
-  for (const part of input.split(',')) {
-    const trimmed = part.trim()
+async function copyPdfjsToTemp(tmpDir: string): Promise<void> {
+  const pdfjsRoot = path.join(app.getAppPath(), 'node_modules', 'pdfjs-dist', 'build')
 
-    if (trimmed.includes('-')) {
-      const [start, end] = trimmed.split('-').map(Number)
-      for (let i = start; i <= Math.min(end, totalPages); i++) {
-        if (i >= 1) pages.add(i)
-      }
-    } else {
-      const n = Number(trimmed)
-      if (n >= 1 && n <= totalPages) pages.add(n)
-    }
-  }
-
-  return Array.from(pages).sort((a, b) => a - b)
+  await fs.promises.writeFile(
+    path.join(tmpDir, 'pdf.mjs'),
+    await fs.promises.readFile(path.join(pdfjsRoot, 'pdf.mjs'))
+  )
+  await fs.promises.writeFile(
+    path.join(tmpDir, 'pdf.worker.mjs'),
+    await fs.promises.readFile(path.join(pdfjsRoot, 'pdf.worker.mjs'))
+  )
 }
 
 async function openPdfInPrintWindow(
   options: PrintOptions & { file: Uint8Array; password?: string }
 ): Promise<BrowserWindow | null> {
-  const tmpHtmlPath = path.join(app.getPath('temp'), `alfa-print-${Date.now()}.html`)
+  const tmpDir = fs.mkdtempSync(path.join(app.getPath('temp'), 'alfa-print-'))
+  const tmpHtmlPath = path.join(tmpDir, 'index.html')
   let printWin: BrowserWindow | null = null
 
   try {
-    const pdfBase64 = Buffer.from(options.file).toString('base64')
     const qualityScale = options.printQuality === 'draft' ? 1.0
       : options.printQuality === 'high' ? 3.0
       : 2.0
 
-    const pageRangeConfig = JSON.stringify({
-      pageRange: options.pageRange,
-      currentPage: options.currentPage,
-      customPages: options.customPages,
-    })
+    const totalPages = await (async () => {
+      try {
+        const pdfDoc = await PDFDocument.load(Buffer.from(options.file), {
+          ignoreEncryption: true,
+        })
+        return pdfDoc.getPageCount()
+      } catch {
+        return 0
+      }
+    })()
+
+    let pagesToRender: number[]
+    let renderAll = false
+
+    if (options.pageRange === 'current') {
+      pagesToRender = [options.currentPage ?? 1]
+    } else if (options.pageRange === 'custom' && options.customPages) {
+      pagesToRender = totalPages > 0
+        ? parsePageRangesInMain(options.customPages, totalPages)
+        : parsePageRangesInMain(options.customPages, Number.MAX_SAFE_INTEGER)
+    } else {
+      pagesToRender = totalPages > 0
+        ? Array.from({ length: totalPages }, (_, i) => i + 1)
+        : []
+      renderAll = totalPages <= 0
+    }
+
+    await copyPdfjsToTemp(tmpDir)
 
     const htmlContent = `<!DOCTYPE html>
 <html>
@@ -101,78 +163,56 @@ async function openPdfInPrintWindow(
 </head>
 <body>
   <div id="container"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
     const { ipcRenderer } = require('electron');
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    (async () => {
+      try {
+        const pdfjsLib = await import('./pdf.mjs');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.mjs';
 
-    const base64 = '${pdfBase64}';
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const payload = await new Promise((resolve) => {
+          ipcRenderer.once('print-window-payload', (_event, data) => resolve(data));
+          ipcRenderer.send('print-window-ready');
+        });
 
-    const password = ${options.password ? `'${options.password}'` : 'undefined'};
-    const config = ${pageRangeConfig};
-    const renderScale = ${qualityScale};
+        const { bytes, password, pagesToRender, renderAll, renderScale } = payload;
 
-    function parsePageRanges(input, totalPages) {
-      const pages = new Set();
-      for (const part of input.split(',')) {
-        const trimmed = part.trim();
-        if (trimmed.includes('-')) {
-          const [start, end] = trimmed.split('-').map(Number);
-          for (let i = start; i <= Math.min(end, totalPages); i++) {
-            if (i >= 1) pages.add(i);
-          }
-        } else {
-          const n = Number(trimmed);
-          if (n >= 1 && n <= totalPages) pages.add(n);
+        const loadingTask = pdfjsLib.getDocument({
+          data: bytes,
+          ...(password ? { password } : {}),
+        });
+
+        const pdf = await loadingTask.promise;
+        const container = document.getElementById('container');
+
+        const list = renderAll
+          ? Array.from({ length: pdf.numPages }, (_, i) => i + 1)
+          : pagesToRender;
+
+        for (const pageNum of list) {
+          const page = await pdf.getPage(pageNum);
+          const viewport = page.getViewport({ scale: renderScale });
+
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          canvas.style.width = '100%';
+          container.appendChild(canvas);
+
+          await page.render({
+            canvasContext: canvas.getContext('2d'),
+            viewport,
+            background: 'white',
+          }).promise;
         }
+
+        ipcRenderer.send('pdf-render-complete');
+      } catch (err) {
+        console.error('[PRINT] Erro ao renderizar:', err);
+        ipcRenderer.send('pdf-render-complete');
       }
-      return Array.from(pages).sort((a, b) => a - b);
-    }
-
-    const loadingTask = pdfjsLib.getDocument({
-      data: bytes,
-      ...(password ? { password } : {}),
-    });
-
-    loadingTask.promise.then(async (pdf) => {
-      const container = document.getElementById('container');
-      const totalPages = pdf.numPages;
-
-      let pagesToRender;
-      if (config.pageRange === 'current') {
-        pagesToRender = [config.currentPage || 1];
-      } else if (config.pageRange === 'custom' && config.customPages) {
-        pagesToRender = parsePageRanges(config.customPages, totalPages);
-      } else {
-        pagesToRender = Array.from({ length: totalPages }, (_, i) => i + 1);
-      }
-
-      for (const pageNum of pagesToRender) {
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: renderScale });
-
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        canvas.style.width = '100%';
-        container.appendChild(canvas);
-
-        await page.render({
-          canvasContext: canvas.getContext('2d'),
-          viewport,
-          background: 'white',
-        }).promise;
-      }
-
-      ipcRenderer.send('pdf-render-complete');
-    }).catch((err) => {
-      ipcRenderer.send('pdf-render-complete');
-    });
+    })();
   </script>
 </body>
 </html>`
@@ -185,15 +225,37 @@ async function openPdfInPrintWindow(
         sandbox: false,
         contextIsolation: false,
         nodeIntegration: true,
-        webSecurity: false,
+        webSecurity: true,
       },
+    })
+
+    let payloadDelivered = false
+    const deliverPayload = () => {
+      if (payloadDelivered) return
+      payloadDelivered = true
+      printWin?.webContents.send('print-window-payload', {
+        bytes: options.file,
+        password: options.password ?? null,
+        pagesToRender,
+        renderAll,
+        renderScale: qualityScale,
+      })
+    }
+
+    ipcMain.once('print-window-ready', () => {
+      if (printWin?.webContents.isLoading()) {
+        printWin.webContents.once('did-finish-load', deliverPayload)
+      } else {
+        deliverPayload()
+      }
     })
 
     await printWin.loadFile(tmpHtmlPath)
 
     await new Promise<void>((resolve) => {
       ipcMain.once('pdf-render-complete', () => resolve())
-      setTimeout(resolve, 15000)
+      setTimeout(() => { if (!payloadDelivered) deliverPayload() }, 1500)
+      setTimeout(resolve, 20000)
     })
 
     return printWin
@@ -202,8 +264,8 @@ async function openPdfInPrintWindow(
     return null
   } finally {
     setTimeout(() => {
-      try { fs.unlinkSync(tmpHtmlPath) } catch { void 0 }
-    }, 5000)
+      try { fs.rmSync(tmpDir, { recursive: true, force: true }) } catch { void 0 }
+    }, 10000)
   }
 }
 
@@ -276,7 +338,17 @@ ipcMain.handle('open-pdf-dialog', async () => {
 
 ipcMain.handle('read-pdf-file', async (_event, filePath: string) => {
   const buffer = fs.readFileSync(filePath)
+  addRecentFile(filePath)
+  app.addRecentDocument(filePath)
   return buffer.toString('base64')
+})
+
+ipcMain.handle('get-recent-documents', () => getRecentFiles())
+
+ipcMain.handle('clear-recent-documents', () => {
+  clearRecentFiles()
+  app.clearRecentDocuments()
+  return true
 })
 
 ipcMain.handle('get-printers', async () => {
@@ -288,7 +360,6 @@ ipcMain.handle('get-printers', async () => {
 
   return printers.map(p => ({
     name: p.name,
-    isDefault: p.isDefault,
   }))
 })
 
@@ -329,7 +400,7 @@ ipcMain.handle(
     if (options.password) {
       return {
         success: false,
-        error: 'PDFs protegidos por senha não podem ser salvos diretamente. Use "Imprimir" e selecione "Microsoft Print to PDF" como impressora.',
+        error: 'PDFs protegidos por senha não podem ser salvos diretamente pelo aplicativo. Use "Imprimir" e selecione "Microsoft Print to PDF" como impressora.',
       }
     }
 
@@ -359,6 +430,20 @@ ipcMain.handle(
 )
 
 ipcMain.handle('get-app-version', () => app.getVersion())
+
+// === CONFIGURAÇÕES (persistência) ========================================
+// As preferências de impressão são memorizadas e reutilizadas no próximo
+// print, até que o usuário as altere novamente.
+
+ipcMain.handle('get-print-settings', () => loadSettings().print)
+
+ipcMain.handle(
+  'save-print-settings',
+  (_event, print: Partial<PrintSettings>) => {
+    saveSettings({ print })
+    return true
+  }
+)
 
 // === AUTO-UPDATE (GitHub Releases) ========================================
 // Fluxo: ao iniciar, verifica update -> baixa em background -> notifica renderer.

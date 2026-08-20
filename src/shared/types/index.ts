@@ -1,2 +1,2 @@
 export * from './types';
-export type { SavePdfResult } from './electron.d';
+export type { SavePdfResult, RecentFile } from './electron.d';

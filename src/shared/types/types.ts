@@ -1,5 +1,14 @@
 export type PrintQuality = 'draft' | 'normal' | 'high'
 
+export interface PrintSettings {
+  printerName?: string
+  copies: number
+  color: boolean
+  pageRange: 'all' | 'current' | 'custom'
+  customPages?: string
+  printQuality: PrintQuality
+}
+
 export interface PrintOptions {
   printerName?: string
   copies: number

@@ -3,7 +3,11 @@ import { contextBridge, ipcRenderer } from 'electron'
 contextBridge.exposeInMainWorld('electronAPI', {
     openPdfDialog: () => ipcRenderer.invoke('open-pdf-dialog'),
     readPdfFile: (filePath: string) => ipcRenderer.invoke('read-pdf-file', filePath),
+    getRecentDocuments: () => ipcRenderer.invoke('get-recent-documents'),
+    clearRecentDocuments: () => ipcRenderer.invoke('clear-recent-documents'),
     getPrinters: () => ipcRenderer.invoke('get-printers'),
+    getPrintSettings: () => ipcRenderer.invoke('get-print-settings'),
+    savePrintSettings: (settings: unknown) => ipcRenderer.invoke('save-print-settings', settings),
     printSilent: (options: unknown) => ipcRenderer.invoke('print-silent', options),
     printNative: (options: unknown) => ipcRenderer.invoke('print-native', options),
     saveAsPdf: (options: unknown) => ipcRenderer.invoke('save-as-pdf', options),

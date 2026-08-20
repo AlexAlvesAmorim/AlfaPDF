@@ -25,21 +25,26 @@ export function ReaderPage() {
   const { toasts, showToast, removeToast } = useToast()
 
   const handleFileUpload = async () => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.pdf'
+    const paths = await window.electronAPI?.openPdfDialog()
+    if (!paths?.length) return
 
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0]
-      if (!file) return
+    await openPath(paths[0])
+  }
 
-      const arrayBuffer = await file.arrayBuffer()
-      const uint8Array = new Uint8Array(arrayBuffer)
+  const openPath = async (filePath: string) => {
+    try {
+      const base64 = await window.electronAPI?.readPdfFile(filePath)
+      if (!base64) return
+      const binary = atob(base64)
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+      const name = filePath.split(/[\\/]/).pop() || 'documento.pdf'
 
-      await tryOpenPdf(uint8Array, file.name)
+      await tryOpenPdf(bytes, name)
+    } catch (err) {
+      console.error('Erro ao abrir arquivo:', err)
+      showToast('Erro ao abrir o arquivo.', 'error')
     }
-
-    input.click()
   }
 
   const tryOpenPdf = async (bytes: Uint8Array, name: string, password?: string) => {
@@ -256,7 +261,7 @@ export function ReaderPage() {
   return (
     <Layout>
       {!activeTab ? (
-        <WelcomeScreen onOpenPdf={handleFileUpload} />
+        <WelcomeScreen onOpenPdf={handleFileUpload} onOpenRecent={openPath} />
       ) : (
         <>
           <PdfTabBar

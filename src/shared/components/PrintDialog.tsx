@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Select, MenuItem, FormControl, InputLabel,
@@ -11,7 +11,7 @@ import TuneIcon from '@mui/icons-material/Tune'
 import DescriptionIcon from '@mui/icons-material/Description'
 import PaletteIcon from '@mui/icons-material/Palette'
 import LayersIcon from '@mui/icons-material/Layers'
-import type { PrintOptions, PrintQuality } from '../types'
+import type { PrintOptions, PrintQuality, PrintSettings } from '../types'
 
 interface Printer { name: string; isDefault?: boolean }
 
@@ -155,6 +155,7 @@ export default function PrintDialog({
   const [printQuality, setPrintQuality] = useState<PrintQuality>('normal')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const savedPrinterRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!open || !window.electronAPI?.getPrinters) return
@@ -166,8 +167,12 @@ export default function PrintDialog({
         if (!mounted) return
         if (list.length) {
           setPrinters(list)
-          const def = list.find((p) => p.isDefault)
-          setSelectedPrinter(def?.name ?? list[0].name)
+          if (savedPrinterRef.current && list.some((p) => p.name === savedPrinterRef.current)) {
+            setSelectedPrinter(savedPrinterRef.current)
+          } else {
+            const def = list.find((p) => p.isDefault)
+            setSelectedPrinter(def?.name ?? list[0].name)
+          }
         } else {
           setError('Nenhuma impressora encontrada no sistema.')
         }
@@ -176,6 +181,32 @@ export default function PrintDialog({
       .finally(() => { if (mounted) setLoading(false) })
     return () => { mounted = false }
   }, [open])
+
+  useEffect(() => {
+    if (!open || !window.electronAPI?.getPrintSettings) return
+    window.electronAPI.getPrintSettings()
+      .then((s: PrintSettings | null) => {
+        if (!s) return
+        setCopies(s.copies ?? 1)
+        setColor(s.color ?? true)
+        setPageRange(s.pageRange ?? 'all')
+        setCustomPages(s.customPages ?? '')
+        setPrintQuality(s.printQuality ?? 'normal')
+        savedPrinterRef.current = s.printerName ?? null
+      })
+      .catch(() => { /* sem settings salvas */ })
+  }, [open])
+
+  const persistSettings = () => {
+    window.electronAPI?.savePrintSettings?.({
+      printerName: selectedPrinter,
+      copies,
+      color,
+      pageRange,
+      customPages: pageRange === 'custom' ? customPages : undefined,
+      printQuality,
+    })
+  }
 
   const buildOptions = (): PrintOptions => ({
     printerName: selectedPrinter,
@@ -193,11 +224,13 @@ export default function PrintDialog({
   const handlePrint = () => {
     if (!selectedPrinter) { setError('Selecione uma impressora.'); return }
     setLoading(true)
+    persistSettings()
     onPrint(buildOptions())
     setTimeout(() => { setLoading(false); onClose() }, 800)
   }
 
   const handleSaveAsPdf = () => {
+    persistSettings()
     onSaveAsPdf(buildOptions())
     onClose()
   }
@@ -475,7 +508,7 @@ export default function PrintDialog({
           {onPrintAdvanced && (
             <Button
               variant="outlined"
-              onClick={() => { onPrintAdvanced(); onClose() }}
+              onClick={() => { persistSettings(); onPrintAdvanced(); onClose() }}
               disabled={loading}
               startIcon={<TuneIcon />}
               title="Abrir o diálogo de impressão do Windows"

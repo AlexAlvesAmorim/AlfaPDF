@@ -1,4 +1,4 @@
-import { PrintOptions } from '@/shared/types'
+import { PrintOptions, PrintSettings } from '@/shared/types'
 
 export {}
 
@@ -9,12 +9,22 @@ export interface SavePdfResult {
   error?: string
 }
 
+export interface RecentFile {
+  path: string
+  name: string
+  openedAt: number
+}
+
 declare global {
   interface Window {
     electronAPI?: {
       openPdfDialog: () => Promise<string[]>
       readPdfFile: (filePath: string) => Promise<string>
-      getPrinters: () => Promise<{ name: string; isDefault?: boolean }[]>
+      getRecentDocuments: () => Promise<RecentFile[]>
+      clearRecentDocuments: () => Promise<boolean>
+      getPrinters: () => Promise<{ name: string }[]>
+      getPrintSettings: () => Promise<PrintSettings>
+      savePrintSettings: (settings: PrintSettings) => Promise<boolean>
       printSilent: (
         options: PrintOptions & { file: Uint8Array }
       ) => Promise<boolean>

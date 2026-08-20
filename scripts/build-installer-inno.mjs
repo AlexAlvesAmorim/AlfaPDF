@@ -51,6 +51,11 @@ async function main() {
   // Atualiza versão no .iss se necessário
   let issContent = readFileSync(issPath, 'utf-8')
   issContent = issContent.replace(/#define MyAppVersion\s+".+"/, `#define MyAppVersion "${version}"`)
+  issContent = issContent.replace(/#define MyAppSuite\s+".+"/, `#define MyAppSuite "${suiteVersion}"`)
+  issContent = issContent.replace(
+    /(OutputBaseFilename=ALFA-PDF-Reader-)\d+\.\d+(?=-Setup-x64)/,
+    `$1${suiteVersion}`
+  )
   writeFileSync(issPath, issContent)
 
   // Tenta encontrar ISCC.exe (Inno Setup Compiler)

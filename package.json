@@ -1,7 +1,7 @@
 {
   "name": "alfa-pdf-reader",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "main": "out/main/index.js",
   "description": "ALFA PDF Reader - Professional PDF Viewer",
   "author": "Alex Alves Amorim",
@@ -38,7 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
     "@vitejs/plugin-react": "^4.2.1",
-    "electron": "^30.0.1",
+    "electron": "^43.4.1",
     "electron-vite": "^2.3.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
