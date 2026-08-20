@@ -1,10 +1,14 @@
-# ALFA PDF Reader 2.1.0 - Release
+# ALFA PDF Reader 2.1.1 - Release
 
 ## 📦 Sobre
 
-**ALFA PDF Reader 2.1.0** é um visualizador PDF profissional desenvolvido para Electron + React + TypeScript com foco em performance, segurança e experiência do usuário.
+**ALFA PDF Reader 2.1.1** é um visualizador PDF profissional desenvolvido para Electron + React + TypeScript com foco em performance, segurança e experiência do usuário.
 
-### ✨ Novidades em 2.1.0
+### 🛠️ Correção em 2.1.1 (hotfix)
+
+- **Instalador agora é montado a partir do build atual** — a v2.1.0 foi publicada empacotando o `win-unpacked` desatualizado (código da 2.0.0 + Electron antigo), o que fazia o app reportar a versão 2.0.0 e continuar sugerindo a própria atualização. O pipeline de build agora regenera o `win-unpacked` do zero a cada release (runtime Electron 43.4.1, código compilado novo, ícone e manifesto do auto-updater), garantindo que o instalador entregue exatamente a versão anunciada.
+
+### ✨ Novidades (desde 2.0.0)
 
 - **Correção: abertura de PDF por duplo clique no sistema** — o arquivo agora sempre abre junto com o programa (tratamento de caminhos com aspas, relativos e `file://`, e aguardo do renderer carregar antes de enviar o documento)
 - **Persistência das configurações de impressão** — cor/P&B, cópias, páginas, qualidade e impressora são memorizados e reutilizados no próximo print, até o usuário alterar

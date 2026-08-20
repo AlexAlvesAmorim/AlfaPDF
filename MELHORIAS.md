@@ -39,6 +39,14 @@
 - Lista de recentes persistida em `settings.json` + Jump List do Windows (`app.addRecentDocument`)
 - Tela inicial exibe os 10 últimos arquivos com botão "Limpar"
 
+### 5. Hotfix 2.1.1 — instalador publicava versão errada
+**Problema:** a release v2.1.0 empacotou o `release/win-unpacked` **desatualizado** (código e runtime da 2.0.0). Quem instalou viu o app reportar `2.0.0` e continuar sugerindo a própria atualização.
+
+**Correção (`scripts/build-installer-inno.mjs`):**
+- O script agora **regenera o `win-unpacked` do zero a cada release**: copia o runtime do Electron instalado, renomeia o exe, aplica o ícone via `rcedit` (nova devDependency), monta `resources/app` (package.json com a versão atual, `out/` recém-compilado e apenas os arquivos de runtime do pdf.js) e recria o `app-update.yml`
+- Node_modules podado: só `pdfjs-dist/build/pdf.mjs` + `pdf.worker.mjs` (o main é 100% bundled pelo electron-vite) — instalador caiu de ~227 MB para ~100 MB
+- Release v2.1.0 quebrada removida do GitHub; **v2.1.1** publicada com o instalador correto
+
 ---
 
 ## 🔴 Fase 1 — Hardening

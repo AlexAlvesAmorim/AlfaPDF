@@ -4,16 +4,24 @@
 // ============================================================================
 
 import { execSync } from 'child_process'
-import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, readFileSync, writeFileSync, rmSync, mkdirSync, cpSync, renameSync } from 'fs'
 import { resolve, join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { createHash } from 'crypto'
+import { rcedit } from 'rcedit'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const RELEASE_DIR = join(ROOT, 'release')
 const INSTALLER_DIR = join(ROOT, 'installer')
 const PACKAGE_JSON = join(ROOT, 'package.json')
+const APP_EXE_NAME = 'ALFA PDF Reader.exe'
+const APP_UPDATE_YML = `owner: AlexAlvesAmorim
+repo: AlfaPDF
+provider: github
+releaseType: release
+updaterCacheDirName: alfa-pdf-reader-updater
+`
 
 function run(cmd, cwd = ROOT) {
   console.log(`$ ${cmd}`)
@@ -28,6 +36,63 @@ function getVersion() {
   return pkg.version
 }
 
+// Regenera release/win-unpacked a partir do build atual, evitando artefatos
+// antigos (o bug da v2.1.0 foi causado por win-unpacked desatualizado).
+async function rebuildWinUnpacked() {
+  const electronDist = join(ROOT, 'node_modules', 'electron', 'dist')
+  const target = join(RELEASE_DIR, 'win-unpacked')
+
+  console.log('\n🧹 Regenerando win-unpacked a partir do build atual...')
+  rmSync(target, { recursive: true, force: true })
+  mkdirSync(target, { recursive: true })
+
+  // 1. Runtime do Electron (versão atual instalada)
+  cpSync(electronDist, target, { recursive: true })
+
+  // 2. Renomeia o executável
+  renameSync(join(target, 'electron.exe'), join(target, APP_EXE_NAME))
+
+  // 3. Aplica ícone + metadados no executável (rcedit)
+  const icon = join(INSTALLER_DIR, 'assets', 'alfa.ico')
+  if (existsSync(icon)) {
+    console.log(`🖼️  Aplicando ícone ${icon} em ${APP_EXE_NAME}...`)
+    await rcedit(join(target, APP_EXE_NAME), { 'set-icon': icon })
+  }
+
+  // 4. Cria resources/app com o app empacotado
+  const appDir = join(target, 'resources', 'app')
+  mkdirSync(appDir, { recursive: true })
+
+  const pkg = JSON.parse(readFileSync(PACKAGE_JSON, 'utf-8'))
+  const appPkg = {
+    name: pkg.name,
+    version: pkg.version,
+    description: pkg.description,
+    author: pkg.author,
+    main: 'out/main/index.js',
+    dependencies: pkg.dependencies,
+  }
+  writeFileSync(join(appDir, 'package.json'), JSON.stringify(appPkg, null, 2))
+
+  // 5. Código compilado (out/)
+  cpSync(join(ROOT, 'out'), join(appDir, 'out'), { recursive: true })
+
+  // 6. node_modules de produção — apenas os arquivos de runtime necessários.
+  //    O main process é totalmente bundled (electron-vite); o único acesso por
+  //    caminho é a cópia do pdf.js para a janela de impressão (copyPdfjsToTemp).
+  const nmTarget = join(appDir, 'node_modules')
+  const pdfjsBuild = join(ROOT, 'node_modules', 'pdfjs-dist', 'build')
+  const nmPdfjs = join(nmTarget, 'pdfjs-dist', 'build')
+  mkdirSync(nmPdfjs, { recursive: true })
+  cpSync(join(pdfjsBuild, 'pdf.mjs'), join(nmPdfjs, 'pdf.mjs'))
+  cpSync(join(pdfjsBuild, 'pdf.worker.mjs'), join(nmPdfjs, 'pdf.worker.mjs'))
+
+  // 7. Manifesto do auto-updater (feed do GitHub)
+  writeFileSync(join(target, 'resources', 'app-update.yml'), APP_UPDATE_YML)
+
+  console.log(`✅ win-unpacked regenerado (versão ${pkg.version})`)
+}
+
 async function main() {
   const version = getVersion()
   const versionTag = `v${version}`
@@ -37,9 +102,12 @@ async function main() {
 
   console.log(`\n🚀 Building ALFA PDF Reader ${version}\n`)
 
-  // 1. Build Electron app (produz release/win-unpacked)
+  // 1. Build Electron app (electron-vite -> out/)
   console.log('\n📦 Building Electron app...')
   run('npm run build')
+
+  // 1.5 Regenerar win-unpacked a partir do build atual (evita artefatos antigos)
+  await rebuildWinUnpacked()
 
   // 2. Compilar Inno Setup
   console.log('\n🔨 Compiling Inno Setup installer...')
