@@ -10,8 +10,8 @@
 ; ============================================================================
 
 #define MyAppName          "ALFA PDF Reader"
-#define MyAppVersion "2.0.0"
-#define MyAppSuite        "2.0"
+#define MyAppVersion "2.1.0"
+#define MyAppSuite "2.1"
 #define MyAppPublisher    "Alex Alves Amorim"
 #define MyAppBrand        "Dev de Favela"
 #define MyAppURL         "https://github.com/AlexAlvesAmorim/AlfaPDF"
@@ -56,7 +56,7 @@ PrivilegesRequired=admin
 ; ---- Configuracao do instalador ----------------------------------------
 ShowLanguageDialog=no
 LanguageDetectionMethod=none
-OutputBaseFilename=ALFA-PDF-Reader-2.0-Setup-x64
+OutputBaseFilename=ALFA-PDF-Reader-2.1-Setup-x64
 OutputDir=..\release
 Compression=lzma2/ultra64
 SolidCompression=yes
