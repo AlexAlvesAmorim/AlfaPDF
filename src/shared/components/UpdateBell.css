@@ -110,9 +110,9 @@
 }
 
 .update-bell-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  position: fixed;
+  top: var(--dropdown-top, 0);
+  left: var(--dropdown-left, 0);
   width: 320px;
   max-height: 400px;
   background: var(--surface);
@@ -122,7 +122,7 @@
     var(--shadow-high),
     0 0 40px var(--primary-red-glow);
   overflow: hidden;
-  z-index: 100;
+  z-index: 9999;
   animation: dropdownSlideIn 0.2s var(--ease-smooth);
 }
 
@@ -275,6 +275,14 @@
 
 .update-bell-install-btn:active {
   transform: translateY(0);
+}
+
+.update-admin-note {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  font-style: italic;
+  margin-top: 2px;
 }
 
 .update-bell-error-actions {

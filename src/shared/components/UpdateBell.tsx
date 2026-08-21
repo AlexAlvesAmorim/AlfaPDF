@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -26,6 +27,7 @@ export default function UpdateBell() {
   const [hasInteracted, setHasInteracted] = useState(false)
   const bellRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
 
   useEffect(() => {
     const api = window.electronAPI
@@ -64,6 +66,28 @@ export default function UpdateBell() {
       setState('error')
     })
   }, [hasInteracted])
+
+  const updateDropdownPosition = () => {
+    if (bellRef.current) {
+      const rect = bellRef.current.getBoundingClientRect()
+      setDropdownPosition({
+        top: rect.bottom + 8,
+        left: rect.right - 320 // align right edge with button right edge
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (isOpen) {
+      updateDropdownPosition()
+      window.addEventListener('scroll', updateDropdownPosition, true)
+      window.addEventListener('resize', updateDropdownPosition)
+      return () => {
+        window.removeEventListener('scroll', updateDropdownPosition, true)
+        window.removeEventListener('resize', updateDropdownPosition)
+      }
+    }
+  }, [isOpen])
 
   const handleInstall = async () => {
     await window.electronAPI?.quitAndInstall()
@@ -132,8 +156,16 @@ export default function UpdateBell() {
         )}
       </button>
 
-      {isOpen && (
-        <div ref={dropdownRef} className="update-bell-dropdown" role="menu">
+      {isOpen && createPortal(
+        <div
+          ref={dropdownRef}
+          className="update-bell-dropdown"
+          role="menu"
+          style={{
+            '--dropdown-top': `${dropdownPosition.top}px`,
+            '--dropdown-left': `${dropdownPosition.left}px`,
+          }}
+        >
           <div className="update-bell-dropdown-header">
             <span className="update-bell-dropdown-title">Atualizações</span>
             {state !== 'idle' && state !== 'checking' && (
@@ -188,6 +220,7 @@ export default function UpdateBell() {
                 <div className="update-bell-status-text">
                   <strong>Atualização {version} pronta!</strong>
                   <span>Clique para instalar e reiniciar.</span>
+                  <span className="update-admin-note">Requer permissão de administrador</span>
                 </div>
                 <button className="update-bell-install-btn" onClick={handleInstall}>
                   <RefreshIcon sx={{ fontSize: 18 }} />
@@ -236,7 +269,8 @@ export default function UpdateBell() {
               </details>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
