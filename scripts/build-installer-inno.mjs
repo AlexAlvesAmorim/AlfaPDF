@@ -131,6 +131,7 @@ async function main() {
     'C:\\Users\\Administrator\\AppData\\Local\\Programs\\Inno Setup 6\\ISCC.exe',
     'C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe',
     'C:\\Program Files\\Inno Setup 6\\ISCC.exe',
+    'C:\\ProgramData\\chocolatey\\bin\\ISCC.exe', // chocolatey
     'ISCC.exe', // se estiver no PATH
   ]
 

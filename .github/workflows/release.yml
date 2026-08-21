@@ -35,7 +35,8 @@ jobs:
       - name: Install Inno Setup
         run: |
           choco install innosetup --version=6.7.1 -y
-          echo "C:\Program Files (x86)\Inno Setup 6" >> $GITHUB_PATH
+          echo "C:\Program Files (x86)\Inno Setup 6" >> $env:GITHUB_PATH
+        shell: pwsh
 
       - name: Build Installer
         run: npm run dist
