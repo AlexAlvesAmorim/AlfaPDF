@@ -1,0 +1,8 @@
+version: 2.1.4
+path: ALFA-PDF-Reader-2.1-Setup-x64.exe
+sha512: 6HST9mg9/ArB3i2t5ATOLmmVYURuk2KoAkwcNLLca7IdIj0osAS3LEFGnOzhjPIh7F74eQawkuRjBc0c3aERJw==
+releaseDate: 2026-08-21T15:22:41.037Z
+files:
+  - url: ALFA-PDF-Reader-2.1-Setup-x64.exe
+    sha512: 6HST9mg9/ArB3i2t5ATOLmmVYURuk2KoAkwcNLLca7IdIj0osAS3LEFGnOzhjPIh7F74eQawkuRjBc0c3aERJw==
+    size: 104719137
