@@ -554,12 +554,17 @@ ipcMain.handle(
 
 app.whenReady().then(() => {
   createWindow()
-  // Verifica atualizacao 3s apos abrir (da tempo de a janela renderizar)
-  setTimeout(() => {
-    autoUpdater.checkForUpdates().catch((err: Error) => {
-      console.error('[autoUpdater] Falha na verificacao inicial:', err.message)
+  // Verifica atualizacao apos janela carregar completamente
+  // Isso garante que o renderer esteja pronto para receber eventos IPC
+  if (mainWindow) {
+    mainWindow.webContents.once('did-finish-load', () => {
+      setTimeout(() => {
+        autoUpdater.checkForUpdates().catch((err: Error) => {
+          console.error('[autoUpdater] Falha na verificacao inicial:', err.message)
+        })
+      }, 1000)
     })
-  }, 3000)
+  }
 })
 
 app.on('window-all-closed', () => {
