@@ -52,18 +52,39 @@ async function rebuildWinUnpacked() {
   // 2. Renomeia o executável
   renameSync(join(target, 'electron.exe'), join(target, APP_EXE_NAME))
 
-  // 3. Aplica ícone + metadados no executável (rcedit)
-  const icon = join(INSTALLER_DIR, 'assets', 'alfa.ico')
-  if (existsSync(icon)) {
-    console.log(`🖼️  Aplicando ícone ${icon} em ${APP_EXE_NAME}...`)
-    await rcedit(join(target, APP_EXE_NAME), { 'set-icon': icon })
+  // 3. Remove default_app.asar (contém o app padrão do Electron com ícone Electron)
+  const defaultAsar = join(target, 'resources', 'default_app.asar')
+  if (existsSync(defaultAsar)) {
+    console.log('🗑️  Removendo default_app.asar (app padrão do Electron)...')
+    rmSync(defaultAsar, { force: true })
   }
 
-  // 4. Cria resources/app com o app empacotado
+  // 4. Aplica ícone + metadados no executável (rcedit v5 API)
+  const icon = join(INSTALLER_DIR, 'assets', 'alfa.ico')
+  const exePath = join(target, APP_EXE_NAME)
+  const pkg = JSON.parse(readFileSync(PACKAGE_JSON, 'utf-8'))
+
+  console.log(`🖼️  Aplicando ícone e metadados em ${APP_EXE_NAME}...`)
+  await rcedit(exePath, {
+    'icon': icon,
+    'file-version': pkg.version,
+    'product-version': pkg.version,
+    'version-string': {
+      'ProductName': 'ALFA PDF Reader',
+      'FileDescription': 'ALFA PDF Reader - Visualizador PDF Profissional',
+      'CompanyName': 'Alex Alves Amorim',
+      'LegalCopyright': 'Copyright (c) 2026 Alex Alves Amorim',
+      'OriginalFilename': 'ALFA PDF Reader.exe',
+      'InternalName': 'ALFA PDF Reader',
+    },
+  })
+  console.log('✅ Ícone e metadados aplicados com sucesso!')
+
+  // 5. Cria resources/app com o app empacotado
   const appDir = join(target, 'resources', 'app')
   mkdirSync(appDir, { recursive: true })
 
-  const pkg = JSON.parse(readFileSync(PACKAGE_JSON, 'utf-8'))
+
   const appPkg = {
     name: pkg.name,
     version: pkg.version,
@@ -74,10 +95,10 @@ async function rebuildWinUnpacked() {
   }
   writeFileSync(join(appDir, 'package.json'), JSON.stringify(appPkg, null, 2))
 
-  // 5. Código compilado (out/)
+  // 6. Código compilado (out/)
   cpSync(join(ROOT, 'out'), join(appDir, 'out'), { recursive: true })
 
-  // 6. node_modules de produção — apenas os arquivos de runtime necessários.
+  // 7. node_modules de produção — apenas os arquivos de runtime necessários.
   //    O main process é totalmente bundled (electron-vite); o único acesso por
   //    caminho é a cópia do pdf.js para a janela de impressão (copyPdfjsToTemp).
   const nmTarget = join(appDir, 'node_modules')
@@ -87,7 +108,7 @@ async function rebuildWinUnpacked() {
   cpSync(join(pdfjsBuild, 'pdf.mjs'), join(nmPdfjs, 'pdf.mjs'))
   cpSync(join(pdfjsBuild, 'pdf.worker.mjs'), join(nmPdfjs, 'pdf.worker.mjs'))
 
-  // 7. Manifesto do auto-updater (feed do GitHub)
+  // 8. Manifesto do auto-updater (feed do GitHub)
   writeFileSync(join(target, 'resources', 'app-update.yml'), APP_UPDATE_YML)
 
   console.log(`✅ win-unpacked regenerado (versão ${pkg.version})`)

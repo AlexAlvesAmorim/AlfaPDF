@@ -1,4 +1,4 @@
-﻿; ============================================================================
+; ============================================================================
 ;  ALFA PDF Reader 2.0 - Instalador Profissional
 ;  Dev de Favela - Software brasileiro de nivel profissional
 ;
@@ -10,7 +10,7 @@
 ; ============================================================================
 
 #define MyAppName          "ALFA PDF Reader"
-#define MyAppVersion "2.1.1"
+#define MyAppVersion "2.1.4"
 #define MyAppSuite "2.1"
 #define MyAppPublisher    "Alex Alves Amorim"
 #define MyAppBrand        "Dev de Favela"
