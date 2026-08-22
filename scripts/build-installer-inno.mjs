@@ -117,15 +117,15 @@ async function rebuildWinUnpacked() {
 async function main() {
   const version = getVersion()
   const versionTag = `v${version}`
-  // O .iss usa MyAppSuite (2.0) no OutputBaseFilename, não a versão completa
-  const suiteVersion = version.split('.').slice(0, 2).join('.') // "2.0"
-  const installerName = `ALFA-PDF-Reader-${suiteVersion}-Setup-x64.exe`
+  // Usa a versão completa no nome do instalador
+  const installerName = `ALFA-PDF-Reader-${version}-Setup-x64.exe`
 
   console.log(`\n🚀 Building ALFA PDF Reader ${version}\n`)
 
-  // 1. Build Electron app (electron-vite -> out/)
-  console.log('\n📦 Building Electron app...')
-  run('npm run build')
+// 1. Build Electron app (electron-vite -> out/)
+  console.log('\ndY"� Building Electron app...')
+  const electronVitePath = join(ROOT, 'node_modules', 'electron-vite', 'bin', 'electron-vite.js')
+  run(`node "${electronVitePath}" build`)
 
   // 1.5 Regenerar win-unpacked a partir do build atual (evita artefatos antigos)
   await rebuildWinUnpacked()
@@ -140,10 +140,10 @@ async function main() {
   // Atualiza versão no .iss se necessário
   let issContent = readFileSync(issPath, 'utf-8')
   issContent = issContent.replace(/#define MyAppVersion\s+".+"/, `#define MyAppVersion "${version}"`)
-  issContent = issContent.replace(/#define MyAppSuite\s+".+"/, `#define MyAppSuite "${suiteVersion}"`)
+  issContent = issContent.replace(/#define MyAppSuite\s+".+"/, `#define MyAppSuite "${version}"`)
   issContent = issContent.replace(
     /(OutputBaseFilename=ALFA-PDF-Reader-)\d+\.\d+(?=-Setup-x64)/,
-    `$1${suiteVersion}`
+    `$1${version}`
   )
   writeFileSync(issPath, issContent)
 

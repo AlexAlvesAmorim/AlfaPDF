@@ -514,6 +514,9 @@ ipcMain.handle('quit-and-install', async () => {
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.close()
   }
+  // O quitAndInstall do electron-updater executa o instalador baixado.
+  // Como o app foi instalado em Program Files (requer admin), o update também precisa.
+  // autoInstallOnAppQuit=true instala ao fechar o app (menos intrusivo).
   autoUpdater.quitAndInstall()
   return true
 })

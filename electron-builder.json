@@ -1,0 +1,43 @@
+{
+  "appId": "com.alfapdf.reader",
+  "productName": "ALFA PDF Reader",
+  "icon": "installer/assets/alfa.ico",
+  "directories": {
+    "output": "release/builder-out"
+  },
+  "files": [
+    "out/**/*",
+    "resources/**/*"
+  ],
+  "extraResources": [
+    {
+      "from": "out",
+      "to": "out"
+    },
+    {
+      "from": "resources",
+      "to": "resources"
+    }
+  ],
+  "win": {
+    "target": "nsis",
+    "icon": "installer/assets/alfa.ico",
+    "executableName": "ALFA PDF Reader",
+    "fileAssociations": [
+      {
+        "ext": "pdf",
+        "name": "PDF",
+        "role": "Viewer"
+      }
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": true,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "ALFA PDF Reader"
+  },
+  "portable": false
+}

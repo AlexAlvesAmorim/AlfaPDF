@@ -1,11 +1,21 @@
+/* Bell button no toolbar - posicao fixa no canto inferior direito */
 .update-bell-container {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* Esconder o portal do dropdown quando nao aberto */
+.update-bell-container > div {
+  display: none;
 }
 
 .update-bell-btn {
-  position: relative;
   width: 40px;
   height: 40px;
   display: inline-flex;
@@ -17,8 +27,8 @@
   color: var(--text-secondary);
   cursor: pointer;
   user-select: none;
-  overflow: hidden;
   transition: all var(--duration-fast) var(--ease-smooth);
+  flex-shrink: 0;
 }
 
 .update-bell-btn::before {
@@ -109,12 +119,13 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-.update-bell-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
+/* Painel inferior - aparece ao clicar no bell */
+.update-bell-bottom-panel {
+  position: fixed;
+  top: 80px;
   right: 0;
-  width: 320px;
-  max-height: 400px;
+  width: 340px;
+  max-height: 460px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
@@ -122,14 +133,16 @@
     var(--shadow-high),
     0 0 40px var(--primary-red-glow);
   overflow: hidden;
-  z-index: 100;
+  z-index: 1051;
   animation: dropdownSlideIn 0.2s var(--ease-smooth);
+  border-top: none;
+  margin-bottom: 0;
 }
 
 @keyframes dropdownSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -137,23 +150,26 @@
   }
 }
 
-.update-bell-dropdown-header {
+.update-bell-bottom-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4);
   border-bottom: 1px solid var(--border);
   background: var(--surface-gradient);
+  height: 48px;
 }
 
-.update-bell-dropdown-title {
+.update-bell-bottom-title {
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
+  flex: 1;
+  text-align: left;
 }
 
-.update-bell-dropdown-close {
+.update-bell-bottom-close {
   width: 28px;
   height: 28px;
   display: inline-flex;
@@ -167,15 +183,15 @@
   transition: all var(--duration-fast);
 }
 
-.update-bell-dropdown-close:hover {
+.update-bell-bottom-close:hover {
   background: var(--glass-medium);
   color: var(--text-primary);
 }
 
-.update-bell-dropdown-content {
+.update-bell-bottom-content {
   padding: var(--space-4);
   overflow-y: auto;
-  max-height: 320px;
+  max-height: 400px;
 }
 
 .update-bell-status {
@@ -263,6 +279,8 @@
   box-shadow:
     0 4px 12px var(--primary-red-glow),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  width: 100%;
+  margin-top: var(--space-2);
 }
 
 .update-bell-install-btn:hover {
@@ -275,6 +293,14 @@
 
 .update-bell-install-btn:active {
   transform: translateY(0);
+}
+
+.update-admin-note {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  font-style: italic;
+  margin-top: 2px;
 }
 
 .update-bell-error-actions {
@@ -384,8 +410,9 @@
 }
 
 @media (max-width: 768px) {
-  .update-bell-dropdown {
-    right: -80px;
-    width: 280px;
+  .update-bell-bottom-panel {
+    right: -4px;
+    width: calc(100vw - 8px);
+    border-radius: var(--radius-xl) var(--radius-0) 0 0;
   }
 }

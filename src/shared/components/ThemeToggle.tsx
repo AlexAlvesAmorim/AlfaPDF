@@ -18,8 +18,11 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       title={label}
       className={`pdf-control-btn pdf-theme-toggle ${className ?? ''}`}
     >
-      <DarkModeIcon className="pdf-theme-icon-moon" sx={{ fontSize: 20 }} />
-      <LightModeIcon className="pdf-theme-icon-sun" sx={{ fontSize: 20 }} />
+      {isDark ? (
+        <DarkModeIcon className="pdf-theme-icon" sx={{ fontSize: 20 }} />
+      ) : (
+        <LightModeIcon className="pdf-theme-icon" sx={{ fontSize: 20 }} />
+      )}
     </button>
   )
 }
