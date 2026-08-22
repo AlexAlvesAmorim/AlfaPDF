@@ -23,11 +23,9 @@ export default function UpdateBell() {
   const [percent, setPercent] = useState<number>(0)
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [releaseNotes, setReleaseNotes] = useState<string>('')
-  const [isOpen, setIsOpen] = useState(false)
-  const [hasInteracted, setHasInteracted] = useState(false)
+  const [isChecking, setIsChecking] = useState(false)
   const bellRef = useRef<HTMLButtonElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
+  const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const api = window.electronAPI
@@ -35,20 +33,19 @@ export default function UpdateBell() {
 
     api.onUpdateChecking(() => {
       setState('checking')
-      setHasInteracted(false)
+      setIsChecking(true)
     })
 
     api.onUpdateAvailable((info: { version: string; releaseNotes?: unknown }) => {
       setVersion(info.version)
       setReleaseNotes((info.releaseNotes ?? '') as string)
       setState('available')
-      setHasInteracted(false)
+      setIsChecking(false)
     })
 
     api.onUpdateNotAvailable(() => {
-      if (!hasInteracted) {
-        setState('idle')
-      }
+      setState('idle')
+      setIsChecking(false)
     })
 
     api.onUpdateProgress((progress: { percent: number }) => {
@@ -59,72 +56,25 @@ export default function UpdateBell() {
     api.onUpdateDownloaded((info: UpdateInfo) => {
       setVersion(info.version)
       setState('downloaded')
+      setIsChecking(false)
     })
 
     api.onUpdateError((error: { message: string }) => {
       setErrorMessage(error.message)
       setState('error')
+      setIsChecking(false)
     })
-  }, [hasInteracted])
-
-  const updateDropdownPosition = () => {
-    if (bellRef.current) {
-      const rect = bellRef.current.getBoundingClientRect()
-      setDropdownPosition({
-        top: rect.bottom + 8,
-        left: rect.right - 320 // align right edge with button right edge
-      })
-    }
-  }
-
-  useEffect(() => {
-    if (isOpen) {
-      updateDropdownPosition()
-      window.addEventListener('scroll', updateDropdownPosition, true)
-      window.addEventListener('resize', updateDropdownPosition)
-      return () => {
-        window.removeEventListener('scroll', updateDropdownPosition, true)
-        window.removeEventListener('resize', updateDropdownPosition)
-      }
-    }
-  }, [isOpen])
-
-  const handleInstall = async () => {
-    await window.electronAPI?.quitAndInstall()
-    setIsOpen(false)
-  }
+  }, [])
 
   const handleDismiss = () => {
-    setHasInteracted(true)
-    setIsOpen(false)
-    if (state === 'error') {
-      setState('idle')
-      setErrorMessage('')
-    }
+    setState('idle')
   }
 
   const handleCheckNow = async () => {
     setState('checking')
+    setIsChecking(true)
     await window.electronAPI?.checkForUpdates()
   }
-
-  const toggleDropdown = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsOpen(!isOpen)
-  }
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        if (bellRef.current && !bellRef.current.contains(event.target as Node)) {
-          setIsOpen(false)
-        }
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
 
   const hasNotification = state !== 'idle' && state !== 'checking'
 
@@ -133,8 +83,8 @@ export default function UpdateBell() {
       <button
         ref={bellRef}
         type="button"
-        className={`update-bell-btn ${hasNotification ? 'has-notification' : ''} ${isOpen ? 'open' : ''}`}
-        onClick={toggleDropdown}
+        className={`update-bell-btn ${hasNotification ? 'has-notification' : ''}`}
+        onClick={handleCheckNow}
         aria-label={hasNotification ? `Atualização: ${getStateLabel(state, version, percent, errorMessage)}` : 'Verificar atualizações'}
         title={hasNotification ? getStateLabel(state, version, percent, errorMessage) : 'Verificar atualizações'}
       >
@@ -156,30 +106,20 @@ export default function UpdateBell() {
         )}
       </button>
 
-      {isOpen && createPortal(
+      {isChecking && createPortal(
         <div
-          ref={dropdownRef}
-          className="update-bell-dropdown"
+          ref={bottomRef}
+          className="update-bell-bottom-panel"
           role="menu"
-          style={{
-            '--dropdown-top': `${dropdownPosition.top}px`,
-            '--dropdown-left': `${dropdownPosition.left}px`,
-          }}
         >
-          <div className="update-bell-dropdown-header">
-            <span className="update-bell-dropdown-title">Atualizações</span>
-            {state !== 'idle' && state !== 'checking' && (
-              <button
-                className="update-bell-dropdown-close"
-                onClick={handleDismiss}
-                aria-label="Fechar"
-              >
-                <CloseIcon sx={{ fontSize: 18 }} />
-              </button>
-            )}
+          <div className="update-bell-bottom-header">
+            <span className="update-bell-bottom-title">Atualizações</span>
+            <button className="update-bell-bottom-close" onClick={handleDismiss} aria-label="Fechar">
+              <CloseIcon sx={{ fontSize: 18 }} />
+            </button>
           </div>
 
-          <div className="update-bell-dropdown-content">
+          <div className="update-bell-bottom-content">
             {state === 'checking' && (
               <div className="update-bell-status checking">
                 <div className="update-bell-spinner" />
@@ -222,7 +162,7 @@ export default function UpdateBell() {
                   <span>Clique para instalar e reiniciar.</span>
                   <span className="update-admin-note">Requer permissão de administrador</span>
                 </div>
-                <button className="update-bell-install-btn" onClick={handleInstall}>
+                <button className="update-bell-install-btn" onClick={() => window.electronAPI?.quitAndInstall()}>
                   <RefreshIcon sx={{ fontSize: 18 }} />
                   Instalar agora
                 </button>
